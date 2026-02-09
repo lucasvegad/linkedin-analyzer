@@ -13,6 +13,7 @@ export async function POST(request) {
     let perplexityResult;
     try {
       perplexityResult = await searchPerplexity(query);
+      console.log('Perplexity result:', perplexityResult); // ← MOVIDO ANTES del return
     } catch (error) {
       console.error('Perplexity error:', error);
       return Response.json({ 
@@ -39,6 +40,7 @@ export async function POST(request) {
     let geminiResult;
     try {
       geminiResult = await generateWithGemini(prompt);
+      console.log('Gemini result:', geminiResult); // ← MOVIDO ANTES del return
     } catch (error) {
       console.error('Gemini error:', error);
       return Response.json({ 
@@ -52,6 +54,7 @@ export async function POST(request) {
       // Limpiar posible markdown de la respuesta
       const cleanJson = geminiResult.replace(/```json\n?|\n?```/g, '').trim();
       parsedResult = JSON.parse(cleanJson);
+      console.log('Parsed result:', parsedResult); // ← MOVIDO ANTES del return
     } catch (error) {
       console.error('Parse error:', error);
       console.error('Gemini raw response:', geminiResult);
@@ -76,4 +79,4 @@ export async function POST(request) {
       error: 'Internal server error: ' + error.message 
     }, { status: 500 });
   }
-}
+} // ← FALTABA ESTA LLAVE DE CIERRE
