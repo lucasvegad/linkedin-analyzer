@@ -1,91 +1,79 @@
-import { NextResponse } from 'next/server';
 import { searchPerplexity } from '../../../lib/perplexity';
-import { askGemini } from '../../../lib/gemini';
-import { supabase } from '../../../lib/supabase';
+import { generateWithGemini } from '../../../lib/gemini';
 
 export async function POST(request) {
   try {
     const { query } = await request.json();
+    
     if (!query) {
-      return NextResponse.json({ error: 'Falta la keyword' }, { status: 400 });
+      return Response.json({ error: 'Query is required' }, { status: 400 });
     }
 
-    // PASO 1: Buscar datos REALES con Perplexity Sonar
-    const perplexityData = await searchPerplexity(query);
-
-    // PASO 2: Analizar con Gemini usando los datos reales
-    const geminiPrompt = `Sos un estratega de contenido LinkedIn especializado en LegalTech.
-Te doy datos REALES encontrados por Perplexity sobre: "${query}"
-
-DATOS REALES DE INTERNET:
-${perplexityData.content}
-
-FUENTES VERIFICADAS:
-${perplexityData.citations.map((url, i) => `[${i + 1}] ${url}`).join('\n')}
-
-PERFIL DEL USUARIO: Lucas Vega, Abogado Tech, proyecto #DigestIA (chatbot municipal con IA para consulta de 172 ordenanzas municipales, sirve a 25,000+ vecinos de Montecarlo, Misiones, Argentina). Ex concejal con 189 proyectos legislativos. Stack: Claude + Gemini + Supabase + Vercel. Pilares: 35% DigestIA, 25% LegalTech, 20% IA gobierno, 15% Aprendizaje, 5% Personal.
-
-Basándote EXCLUSIVAMENTE en los datos reales proporcionados, generá un JSON con este schema exacto:
-{
-  "trends": [
-    {
-      "title": "string título conciso",
-      "description": "string 2-3 oraciones basadas en datos reales",
-      "relevance_score": 8,
-      "saturation": "low",
-      "lucas_angle": "string cómo Lucas puede cubrir esto con DigestIA",
-      "suggested_pillar": "DigestIA",
-      "suggested_format": "carrusel",
-      "source_url": "string URL real"
-    }
-  ],
-  "unique_angles": [
-    {
-      "angle": "string",
-      "why_only_lucas": "string",
-      "potential_virality": "medium"
-    }
-  ],
-  "content_gaps": [
-    {
-      "topic": "string",
-      "demand_signal": "string",
-      "suggested_approach": "string"
-    }
-  ]
-}
-
-Generá exactamente 5 trends, 3 unique_angles, 2 content_gaps.
-Para saturation usá solo: "low", "medium", "high"
-Para suggested_pillar solo: "DigestIA", "LegalTech", "IA_gobierno", "Aprendizaje", "Personal"
-Para suggested_format solo: "carrusel", "texto_imagen", "video", "encuesta", "solo_texto"
-Para potential_virality solo: "low", "medium", "high"
-Respondé SOLO con el JSON, sin texto adicional, sin backticks markdown.`;
-
-    const geminiAnalysis = await askGemini(geminiPrompt);
-
-    // PASO 3: Guardar en Supabase
+    // 1. Buscar en Perplexity
+    let perplexityResult;
     try {
-      await supabase.from('analyses').insert({
-        query,
-        perplexity_data: perplexityData,
-        gemini_analysis: geminiAnalysis,
-        sources: perplexityData.citations,
-      });
-    } catch (dbErr) {
-      console.error('Supabase save error:', dbErr);
+      perplexityResult = await searchPerplexity(query);
+    } catch (error) {
+      console.error('Perplexity error:', error);
+      return Response.json({ 
+        error: 'Error searching trends: ' + error.message 
+      }, { status: 500 });
     }
 
-    // PASO 4: Devolver resultado combinado
-    return NextResponse.json({
-      ...geminiAnalysis,
-      sources: perplexityData.citations,
-      search_results: perplexityData.search_results,
-      related_questions: perplexityData.related_questions,
-    });
+    // 2. Procesar con Gemini
+    const prompt = `Analyze these trends about "${query}" and return a JSON with this structure:
+    {
+      "trends": [
+        {
+          "title": "Trend title",
+          "description": "Brief description",
+          "source": "URL source"
+        }
+      ],
+      "angles": ["angle1", "angle2", "angle3"],
+      "contentGaps": ["gap1", "gap2"]
+    }
+    
+    Data to analyze: ${perplexityResult}`;
 
-  } catch (err) {
-    console.error('Analyze error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    let geminiResult;
+    try {
+      geminiResult = await generateWithGemini(prompt);
+    } catch (error) {
+      console.error('Gemini error:', error);
+      return Response.json({ 
+        error: 'Error analyzing trends: ' + error.message 
+      }, { status: 500 });
+    }
+
+    // 3. Parsear respuesta de Gemini
+    let parsedResult;
+    try {
+      // Limpiar posible markdown de la respuesta
+      const cleanJson = geminiResult.replace(/```json\n?|\n?```/g, '').trim();
+      parsedResult = JSON.parse(cleanJson);
+    } catch (error) {
+      console.error('Parse error:', error);
+      console.error('Gemini raw response:', geminiResult);
+      return Response.json({ 
+        error: 'Error parsing analysis result' 
+      }, { status: 500 });
+    }
+
+    // Verificar que trends existe y es un array
+    if (!parsedResult.trends || !Array.isArray(parsedResult.trends)) {
+      console.error('Invalid result structure:', parsedResult);
+      return Response.json({ 
+        error: 'Invalid analysis result structure' 
+      }, { status: 500 });
+    }
+
+    return Response.json(parsedResult);
+
+  } catch (error) {
+    console.error('General error:', error);
+    return Response.json({ 
+      error: 'Internal server error: ' + error.message 
+    }, { status: 500 });
   }
 }
