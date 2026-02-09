@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-};
+  // No pongas 'distDir' ni cosas raras
+  // Dejalo simple así:
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
