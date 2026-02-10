@@ -11,39 +11,61 @@ export async function POST(request) {
     const prompt = `Genera 6 hooks de LinkedIn para Lucas Vega.
 
 Tema: "${trend.title}"
-Contexto: "${trend.description}"
+Contexto real: "${trend.description}"
 Pilar: ${trend.suggested_pillar}
 Angulo: "${trend.lucas_angle}"
+Keyword: "${query}"
 
-=== SOBRE LUCAS (NO exagerar) ===
-Cargo actual: Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones.
-Ex concejal (2021-2025, gestion terminada). 189 proyectos legislativos.
-DigestIA: proyecto de chatbot IA EN DESARROLLO para 2026, NO implementado.
-Las 172 ordenanzas ya estaban digitalizadas (el NO las digitalizo).
-"Abogado Tech" y "Vibe Coder". Stack: Claude, Gemini, Supabase, Vercel.
+=== PERFIL (solo datos verificables) ===
+- Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones (25,981 hab)
+- Ex concejal (2021-2025). 189 proyectos legislativos
+- DigestIA: chatbot IA para legislacion municipal — EN DESARROLLO 2026, no implementado
+- Digesto certificado: 176 normas vigentes (4ta Consolidacion, nov 2025)
+- Stack: Claude, Gemini, Supabase, Vercel
 
-PROHIBIDO: "soy concejal", "digitalice ordenanzas", "DigestIA sirve a 25K vecinos".
-CORRECTO: "ex concejal", "proyecto en desarrollo", "estoy construyendo".
+=== REGLAS PARA LOS HOOKS ===
 
-Formulas (1 de cada):
-1. Contraintuitivo: "[Creencia comun] esta mal."
-2. Numero: "[N] [resultado] en [tiempo]"
-3. Pregunta retorica
-4. Historia personal: "Hace [tiempo]..."
-5. Controversial: Opinion fuerte
-6. Lista: "[N] cosas que [resultado]"
+Los hooks deben cumplir estas condiciones:
+1. NUNCA empezar con "yo" — el hook debe abrir con un dato, pregunta, o situacion
+2. Caber en los primeros 210 caracteres (lo que se ve antes de "ver mas")
+3. Generar curiosidad genuina, no clickbait vacio
+4. Sonar como una persona real, no como un copywriter de marketing
+5. NO autoproclamarse: nada de "pionero", "visionario", "lider", "revolucionario"
+6. NO ser grandilocuente ni usar superlativos ("increible", "impresionante", "historico")
+7. Los mejores hooks usan: datos concretos, preguntas provocadoras, o micro-historias
+8. Preferir primera persona plural ("descubrimos", "aprendimos") sobre singular
 
-Tono: persona real, cercano, honesto. NO marketing corporativo.
+PROHIBIDO en hooks:
+- "DigestIA sirve a X vecinos" (no esta en produccion)
+- "Como concejal" en presente (ya no lo es)
+- "Digitalice ordenanzas" (ya estaban digitalizadas)
+- "35,000 habitantes" (son 25,981)
+- Humble bragging disfrazado de pregunta
 
-JSON exacto:
+BUENOS EJEMPLOS de hooks calibrados:
+- "Meta acaba de prohibir chatbots de IA en WhatsApp. La politica ya esta vigente."
+- "176 normas vigentes. Un Digesto certificado. Y ninguna forma facil de consultarlo. Hasta ahora."
+- "En un municipio de 25,000 habitantes, ¿tiene sentido invertir en IA? Esto es lo que encontramos."
+- "3 dias para encontrar una ordenanza. 15 minutos con IA. El proceso que estamos probando."
+- "189 proyectos legislativos en 4 anos. Lo que aprendi sobre por que la ley no llega al ciudadano."
+
+=== FORMULAS (exactamente 1 de cada) ===
+1. Contraintuitivo: Desafiar una creencia comun del sector con un dato
+2. Numero especifico: Numero concreto + resultado medible + contexto temporal
+3. Pregunta provocadora: Pregunta que el lector no pueda ignorar (NO "¿Que opinan?")
+4. Micro-historia: "Hace [tiempo], [situacion concreta]. Hoy [cambio real]."
+5. Controversial: Opinion profesional fuerte y defendible sobre el sector
+6. Lista con promesa: "[N] cosas que [resultado especifico y creible]"
+
+=== RESPONDE EN JSON ===
 {
   "hooks": [
     {
-      "text": "string hook listo para publicar",
+      "text": "string hook completo listo para publicar (max 210 caracteres)",
       "formula_type": "contraintuitivo",
       "estimated_engagement": "high",
       "best_format": "texto_imagen",
-      "follow_up_angle": "string direccion del post"
+      "follow_up_angle": "string de que iria el post completo"
     }
   ],
   "recommended_top3": [0, 2, 4]
@@ -52,7 +74,8 @@ JSON exacto:
 formula_type: "contraintuitivo"|"numero"|"pregunta"|"historia"|"controversial"|"lista"
 estimated_engagement: "low"|"medium"|"high"|"viral"
 best_format: "carrusel"|"texto_imagen"|"video"|"solo_texto"
-Responde SOLO JSON valido.`;
+recommended_top3: indices de los 3 mejores hooks
+Solo JSON valido.`;
 
     let data;
     try {
@@ -66,7 +89,6 @@ Responde SOLO JSON valido.`;
       return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
     }
 
-    // Ensure structure
     const result = {
       hooks: data.hooks || [],
       recommended_top3: data.recommended_top3 || [0, 1, 2],
