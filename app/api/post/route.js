@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { askGemini } from '../../../lib/gemini';
+import { generateWithGemini, askGemini } from '../../../lib/gemini';
 import { supabase } from '../../../lib/supabase';
 
 export async function POST(request) {
@@ -9,96 +9,101 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Faltan hook y trend' }, { status: 400 });
     }
 
-    const prompt = `Escribí un post COMPLETO de LinkedIn para Lucas Vega.
+    const prompt = `Escribi un post COMPLETO de LinkedIn para Lucas Vega.
 
-Hook seleccionado: "${hook.text}"
+Hook: "${hook.text}"
 Pilar: ${trend.suggested_pillar}
-Formato sugerido: ${hook.best_format}
-Contexto del trend: "${trend.description}"
-Ángulo de Lucas: "${trend.lucas_angle}"
+Contexto: "${trend.description}"
+Angulo: "${trend.lucas_angle}"
 
-=== PERFIL VERIFICABLE DE LUCAS (NO inventar ni exagerar) ===
-- Cargo ACTUAL: Secretario del Digesto Jurídico & Modernización, Concejo Deliberante de Montecarlo, Misiones
-- Ex concejal (2021-2025, gestión terminada el 10/12/2025) — presentó 189 proyectos legislativos
-- Proyecto DigestIA: chatbot IA para consulta de legislación municipal — PROYECTO EN DESARROLLO para 2026
-- Las 172 ordenanzas del digesto ya estaban digitalizadas (Lucas NO las digitalizó)
-- Montecarlo tiene ~35,000 habitantes
-- Se identifica como "Abogado Tech" y "Vibe Coder"
-- Stack: Claude, Gemini, Supabase, Vercel
-- +10 años de experiencia legal (litigio privado + gestión pública)
+=== PERFIL VERIFICABLE (NO inventar ni exagerar) ===
+Cargo ACTUAL: Secretario del Digesto Juridico & Modernizacion, Concejo Deliberante de Montecarlo, Misiones.
+Ex concejal (2021-2025, gestion terminada 10/12/2025). 189 proyectos legislativos presentados.
+DigestIA: chatbot IA para consulta legislativa - PROYECTO EN DESARROLLO 2026, NO implementado.
+172 ordenanzas en el digesto (ya estaban digitalizadas, Lucas NO las digitalizo).
+Montecarlo tiene ~35,000 habitantes.
++10 anos experiencia legal. "Abogado Tech" y "Vibe Coder".
 
-=== PROHIBICIONES ABSOLUTAS ===
-- NO escribir "DigestIA atiende/sirve a 25K vecinos" (no está en producción)
-- NO escribir "soy concejal" ni "como concejal" (ya no lo es)
-- NO escribir "digitalicé/digitalizamos 172 ordenanzas" (ya estaban hechas)
-- NO escribir "primer municipio de Argentina con IA" (no es verificable)
-- NO usar tono de marketing corporativo ni frases grandilocuentes
-- NO empezar con "Hoy quiero compartir..." ni "Les cuento que..."
+=== PROHIBIDO ===
+- "DigestIA atiende/sirve a 25K vecinos" (no esta en produccion)
+- "soy concejal" o "como concejal" (ya no lo es)
+- "digitalice 172 ordenanzas" (ya estaban digitalizadas)
+- "primer municipio de Argentina con IA" (no verificable)
+- Tono de marketing corporativo o frases grandilocuentes
+- "Hoy quiero compartir..." o "Les cuento que..."
 
-=== SÍ USAR ===
-- "En mi gestión como concejal (2021-2025) presenté 189 proyectos..."
+=== CORRECTO ===
+- "En mi gestion como concejal (2021-2025) presente 189 proyectos..."
 - "Estoy desarrollando DigestIA, un proyecto de chatbot IA para..."
 - "Como Secretario del Digesto, trabajo en modernizar..."
-- "Mi experiencia en el sector público me enseñó que..."
-- Tono de persona real contando su experiencia, no de influencer
+- Tono de persona real contando su experiencia
 
-=== ESTRUCTURA DEL POST ===
-Línea 1: El hook exacto (copiá tal cual el proporcionado)
-[línea en blanco]
-Líneas 3-5: Contexto o problema (desde experiencia real)
-Líneas 6-10: Desarrollo con valor (aprendizajes concretos)
-Líneas 11-13: Dato verificable como prueba
-[línea en blanco]
-Última línea: CTA con pregunta genuina que invite a comentar
+ESTRUCTURA:
+Linea 1: Hook exacto
+[linea en blanco]
+Lineas 3-5: Contexto/problema desde experiencia real
+Lineas 6-10: Desarrollo con valor y aprendizajes
+Lineas 11-13: Dato verificable como prueba
+[linea en blanco]
+Ultima linea: CTA con pregunta genuina
 
-=== REGLAS DE FORMATO ===
-- Entre 150 y 200 palabras total
-- NO links en el cuerpo del post
-- Máximo 3 emojis en TODO el post
-- Saltos de línea frecuentes (máximo 2 oraciones por párrafo)
-- NO hashtags dentro del texto, van separados al final
-- Que suene como una persona real escribiendo, no como IA
+REGLAS: 150-200 palabras. NO links en cuerpo. Max 3 emojis. Saltos de linea frecuentes.
 
-JSON schema exacto:
+JSON exacto:
 {
-  "post_body": "string con saltos usando \\n",
+  "post_body": "string con \\n para saltos",
   "hashtags": ["#DigestIA", "#LegalTech", "#IAenGobierno"],
-  "first_comment": "string texto para publicar como primer comentario (incluir link relevante si aplica)",
+  "first_comment": "string para 1er comentario",
   "best_posting_time": "Martes 8:00 AM GMT-3",
   "word_count": 175,
   "engagement_prediction": "high",
-  "suggested_image": "string descripción del visual que debería acompañar el post"
+  "suggested_image": "string descripcion del visual"
 }
 
-Para engagement_prediction solo: "low", "medium", "high"
-Para best_posting_time elegí entre: "Martes 8:00 AM GMT-3", "Martes 12:00 PM GMT-3", "Miércoles 8:00 AM GMT-3", "Miércoles 17:00 PM GMT-3", "Jueves 8:00 AM GMT-3", "Jueves 12:00 PM GMT-3"
-hashtags debe tener entre 3 y 5 elementos, siempre incluir #DigestIA y #LegalTech
-Respondé SOLO con JSON válido.`;
+engagement_prediction: "low"|"medium"|"high"
+best_posting_time: "Martes 8:00 AM GMT-3" o "Miercoles 8:00 AM GMT-3" o "Jueves 8:00 AM GMT-3"
+hashtags: 3-5 items, siempre incluir #DigestIA y #LegalTech
+Responde SOLO JSON valido.`;
 
     let data;
     try {
-      data = await askGemini(prompt);
-    } catch (geminiErr) {
-      console.error('Gemini post error:', geminiErr);
-      return NextResponse.json({ error: 'Error generando post: ' + geminiErr.message }, { status: 500 });
+      data = await generateWithGemini(prompt);
+    } catch (gErr) {
+      console.error('Gemini post error:', gErr);
+      return NextResponse.json({ error: 'Error generando post: ' + gErr.message }, { status: 500 });
     }
 
-    // Guardar post generado en Supabase
+    if (data._parseError) {
+      return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
+    }
+
+    // Ensure structure
+    const result = {
+      post_body: data.post_body || '',
+      hashtags: data.hashtags || ['#DigestIA', '#LegalTech'],
+      first_comment: data.first_comment || '',
+      best_posting_time: data.best_posting_time || 'Martes 8:00 AM GMT-3',
+      word_count: data.word_count || 0,
+      engagement_prediction: data.engagement_prediction || 'medium',
+      suggested_image: data.suggested_image || '',
+    };
+
+    // Save to Supabase (non-blocking)
     try {
       await supabase.from('generated_posts').insert({
         hook: hook.text,
-        post_body: data.post_body,
-        hashtags: data.hashtags,
+        post_body: result.post_body,
+        hashtags: result.hashtags,
         pillar: trend.suggested_pillar,
       });
     } catch (dbErr) {
-      console.error('Save post error:', dbErr);
+      console.error('Save post error (non-blocking):', dbErr);
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(result);
 
   } catch (err) {
     console.error('Post error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Error desconocido' }, { status: 500 });
   }
 }
