@@ -1,75 +1,50 @@
-import { NextResponse } from 'next/server';
-import { askGemini } from '../../../lib/gemini';
-import { supabase } from '../../../lib/supabase';
+import { generateWithGemini } from '../../../lib/gemini';
 
 export async function POST(request) {
   try {
     const { hook, trend } = await request.json();
-    if (!hook || !trend) {
-      return NextResponse.json({ error: 'Faltan hook y trend' }, { status: 400 });
-    }
+    
+    const prompt = `Escribí un post completo para LinkedIn de Lucas Vega.
 
-    const prompt = `Escribí un post COMPLETO de LinkedIn para Lucas Vega.
+Hook: "${hook.text}"
+Tema: "${trend.title}"
 
-Hook seleccionado: "${hook.text}"
-Pilar: ${trend.suggested_pillar}
-Formato sugerido: ${hook.best_format}
-Contexto del trend: "${trend.description}"
-Ángulo de Lucas: "${trend.lucas_angle}"
+PERFIL DE LUCAS (usar solo lo real):
+✅ Legal Tech Lead en Digesto Jurídico (Montecarlo, Misiones)
+✅ Concejal: 172 ordenanzas digitalizadas en chatbot IA
+✅ 25,000+ vecinos con acceso 24/7 a normativa
+✅ 189 proyectos legislativos presentados
+✅ Stack: Claude + Gemini + Supabase + Vercel
+✅ Abogado "Vibe Coder" (sin background técnico)
+
+DIGESTIA - MUY IMPORTANTE:
+⚠️ Es un PROYECTO EN PLANIFICACIÓN para 2025
+⚠️ NO está implementado aún
+⚠️ NO decir "tenemos DigestIA funcionando"
+✅ SÍ decir: "estamos desarrollando", "próximo paso", "en roadmap", "planificación 2025"
 
 ESTRUCTURA DEL POST:
-Línea 1: El hook exacto (copiá tal cual)
-[línea en blanco]
-Líneas 3-5: Contexto o problema que resuelve
-Líneas 6-10: Desarrollo con valor real y aprendizajes
-Líneas 11-13: Dato concreto como prueba (usar datos reales de Lucas)
-[línea en blanco]
-Última línea: CTA con pregunta genuina que invite a comentar
+1. Hook (enganchante)
+2. Contexto personal (experiencia real con ordenanzas/chatbot)
+3. Insight sobre el tema
+4. CTA (llamado a la acción)
 
-REGLAS ESTRICTAS:
-- Entre 150 y 200 palabras total
-- NO poner links en el cuerpo del post
-- NO empezar con "Hoy quiero compartir..." ni frases genéricas
-- Máximo 3 emojis en TODO el post (no más)
-- Saltos de línea frecuentes (máximo 2 oraciones por párrafo)
-- Usar al menos 1 dato real: 172 ordenanzas, 25K vecinos, 189 proyectos, primer municipio IA Argentina
-- Tono: profesional pero cercano, como hablando con un colega
-- NO usar hashtags dentro del texto, van separados al final
+TONO: Profesional, humilde, construyendo en público.
 
-JSON schema exacto:
+Devolvé JSON:
 {
-  "post_body": "string con saltos usando \\n",
-  "hashtags": ["#DigestIA", "#LegalTech", "#IAenGobierno"],
-  "first_comment": "string texto para publicar como primer comentario",
-  "best_posting_time": "Martes 8:00 AM GMT-3",
+  "post_body": "texto completo del post (150-200 palabras)",
+  "hashtags": ["#LegalTech", "#DigestIA", "#Innovación", "#Municipios", "#IA"],
   "word_count": 175,
   "engagement_prediction": "high",
-  "suggested_image": "string descripción del visual que debería acompañar el post"
-}
+  "first_comment": "texto para primer comentario"
+}`;
 
-Para engagement_prediction solo: "low", "medium", "high"
-Para best_posting_time elegí entre: "Martes 8:00 AM GMT-3", "Martes 12:00 PM GMT-3", "Miércoles 8:00 AM GMT-3", "Miércoles 17:00 PM GMT-3", "Jueves 8:00 AM GMT-3", "Jueves 12:00 PM GMT-3"
-hashtags debe tener entre 3 y 5 elementos, siempre incluir #DigestIA y #LegalTech
-Respondé SOLO con JSON válido.`;
-
-    const data = await askGemini(prompt);
-
-    // Guardar post generado en Supabase
-    try {
-      await supabase.from('generated_posts').insert({
-        hook: hook.text,
-        post_body: data.post_body,
-        hashtags: data.hashtags,
-        pillar: trend.suggested_pillar,
-      });
-    } catch (dbErr) {
-      console.error('Save post error:', dbErr);
-    }
-
-    return NextResponse.json(data);
+    const data = await generateWithGemini(prompt);
+    return Response.json(data);
 
   } catch (err) {
     console.error('Post error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
