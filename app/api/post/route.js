@@ -9,61 +9,157 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Faltan hook y trend' }, { status: 400 });
     }
 
-    const prompt = `Escribi un post COMPLETO de LinkedIn para Lucas Vega.
+    const prompt = `Escribi un post de LinkedIn para Lucas Vega. Tu trabajo es escribir como escribiria un profesional real contando su proceso, NO como un copywriter de marketing.
 
-Hook: "${hook.text}"
+Hook seleccionado: "${hook.text}"
 Pilar: ${trend.suggested_pillar}
-Contexto: "${trend.description}"
-Angulo: "${trend.lucas_angle}"
+Formato: ${hook.best_format}
+Contexto del trend: "${trend.description}"
+Angulo de Lucas: "${trend.lucas_angle}"
 
-=== PERFIL VERIFICABLE (NO inventar ni exagerar) ===
-Cargo ACTUAL: Secretario del Digesto Juridico & Modernizacion, Concejo Deliberante de Montecarlo, Misiones.
-Ex concejal (2021-2025, gestion terminada 10/12/2025). 189 proyectos legislativos presentados.
-DigestIA: chatbot IA para consulta legislativa - PROYECTO EN DESARROLLO 2026, NO implementado.
-172 ordenanzas en el digesto (ya estaban digitalizadas, Lucas NO las digitalizo).
-Montecarlo tiene ~35,000 habitantes.
-+10 anos experiencia legal. "Abogado Tech" y "Vibe Coder".
+=============================================
+PERFIL VERIFICABLE DE LUCAS VEGA
+(Solo usar estos datos. No inventar, no inflar.)
+=============================================
 
-=== PROHIBIDO ===
+CARGO ACTUAL (dic 2025 - presente):
+- Secretario del Digesto Juridico & Modernizacion, Concejo Deliberante de Montecarlo, Misiones, Argentina
+
+EXPERIENCIA PASADA (terminada):
+- Ex concejal de Montecarlo (2021-2025, gestion finalizada 10/12/2025)
+- Presento 189 proyectos legislativos durante su gestion
+- +10 anos de experiencia legal (litigio privado + gestion publica)
+
+PROYECTO DigestIA:
+- Chatbot IA para consulta de legislacion municipal
+- Estado: EN DESARROLLO, roadmap 2026. NO esta implementado, NO esta en produccion
+- Base: Digesto Juridico certificado (4ta Consolidacion, nov 2025), 176 normas vigentes a partir del 1/1/2026
+- Lucas NO digitalizo las ordenanzas — el Digesto ya existia certificado
+- Stack tecnico: Claude API, Gemini, Supabase, Vercel
+
+DATOS DEMOGRAFICOS:
+- Montecarlo ciudad: 25,981 habitantes (Censo 2022 INDEC). NO usar 35,000 (eso es el departamento completo)
+
+IDENTIDAD PROFESIONAL:
+- Se posiciona como profesional tecnico que comparte su proceso
+- NO usar "Vibe Coder" ni "Abogado Tech" como etiquetas — esas son autodescripciones informales, no titulos
+- El expertise se DEMUESTRA con datos y proceso, no se ANUNCIA con etiquetas
+
+=============================================
+REGLAS DE VOZ "LUCAS CALIBRADO"
+(Basadas en benchmark de referentes LegalTech: Corvalan, Colin Levy, Federico Ast)
+=============================================
+
+FORMULA DE CONTENIDO: 70% valor educativo + 20% proceso personal + 10% logros propios
+
+1. PRIMERA PERSONA PLURAL siempre que sea posible:
+   - SI: "Descubrimos que...", "Estamos trabajando en...", "Aprendimos que..."
+   - NO: "Yo implemente...", "Yo soy el que..."
+
+2. DATOS COMO PROTAGONISTA (no Lucas como protagonista):
+   - SI: "Redujimos de 3 dias a 15 minutos la busqueda normativa"
+   - NO: "Soy un innovador que transformo la legislacion"
+
+3. VULNERABILIDAD CONTROLADA — compartir obstaculos y errores:
+   - SI: "La primera vez que intentamos X, fue un desastre. Esto tuvimos que cambiar..."
+   - SI: "Todavia no lo logramos, pero esto es lo que estamos probando..."
+   - NO: Presentar todo como exito sin fisuras
+
+4. NUNCA AUTOPROCLAMARSE:
+   - PROHIBIDO: "pionero", "visionario", "lider", "revolucionario", "primer municipio con IA"
+   - PROHIBIDO: "estoy transformando", "estoy revolucionando"
+   - El experto se demuestra, no se anuncia
+
+5. CONTEXTO DE MUNICIPIO CHICO COMO VENTAJA (no como limitacion):
+   - SI: "Lo que funciona en un municipio de 25,000 habitantes puede escalar a cualquier gobierno local"
+   - NO: tono de victima o de heroe contra las circunstancias
+
+6. PREGUNTAS GENUINAS AL CIERRE (no genericas):
+   - SI: "¿Otros municipios estan usando herramientas similares? Me interesa escuchar experiencias"
+   - SI: "¿Trabajas en GovTech? ¿Como manejan [problema especifico]?"
+   - NO: "¿Que opinan?", "¿Que piensan?", "¿Estan de acuerdo?"
+
+7. LO PERSONAL APARECE TARDE, NO AL PRINCIPIO:
+   - El hook es un dato, pregunta, o micro-historia universal
+   - La experiencia personal de Lucas aparece recien en el 3er o 4to parrafo
+   - Y siempre como "nosotros/estamos trabajando", no como "yo logre"
+
+=============================================
+PROHIBICIONES ABSOLUTAS
+=============================================
 - "DigestIA atiende/sirve a 25K vecinos" (no esta en produccion)
-- "soy concejal" o "como concejal" (ya no lo es)
-- "digitalice 172 ordenanzas" (ya estaban digitalizadas)
-- "primer municipio de Argentina con IA" (no verificable)
-- Tono de marketing corporativo o frases grandilocuentes
-- "Hoy quiero compartir..." o "Les cuento que..."
+- "Soy concejal" o "como concejal" en presente (ya termino)
+- "Digitalice/digitalizamos 172 ordenanzas" (ya estaban digitalizadas, y son 176)
+- "Primer municipio de Argentina con IA" (no verificable)
+- "35,000 habitantes" (son 25,981 en la ciudad)
+- Empezar con "Hoy quiero compartir...", "Les cuento que...", "Yo creo que..."
+- Tono de marketing corporativo, comunicado de prensa, o manifiesto visionario
+- Humble bragging (es peor percibido que presumir directamente segun Harvard)
+- Emojis decorativos excesivos (maximo 2-3 en todo el post, y solo si aportan)
 
-=== CORRECTO ===
-- "En mi gestion como concejal (2021-2025) presente 189 proyectos..."
-- "Estoy desarrollando DigestIA, un proyecto de chatbot IA para..."
-- "Como Secretario del Digesto, trabajo en modernizar..."
-- Tono de persona real contando su experiencia
+=============================================
+ESTRUCTURA DEL POST (formato PAS + Storytelling)
+=============================================
 
-ESTRUCTURA:
-Linea 1: Hook exacto
+HOOK (primeros 210 caracteres, ANTES del "ver mas"):
+- Dato concreto, pregunta provocadora, o micro-historia
+- NUNCA empezar con "yo"
+- Debe generar curiosidad para que hagan clic en "ver mas"
+
 [linea en blanco]
-Lineas 3-5: Contexto/problema desde experiencia real
-Lineas 6-10: Desarrollo con valor y aprendizajes
-Lineas 11-13: Dato verificable como prueba
+
+PROBLEMA/CONTEXTO (2-3 oraciones):
+- Anclar en la realidad del LECTOR, no en la de Lucas
+- Usar datos reales y verificables
+- Que el lector piense "esto me pasa a mi tambien"
+
 [linea en blanco]
-Ultima linea: CTA con pregunta genuina
 
-REGLAS: 150-200 palabras. NO links en cuerpo. Max 3 emojis. Saltos de linea frecuentes.
+INSIGHT/PROCESO (el corazon del post):
+- Lo que se aprendio, con datos especificos
+- Si aplica: lista numerada de 2-3 puntos (no mas)
+- Aqui puede aparecer la experiencia personal, en plural, como caso de estudio
 
-JSON exacto:
+[linea en blanco]
+
+CTA (cierre):
+- Pregunta genuina y especifica que invite al dialogo
+- Dirigida a un publico concreto ("¿Trabajas en GovTech?", "¿Otros municipios...")
+- NO preguntas vacias como "¿Que opinan?"
+
+HASHTAGS (separados al final, en linea aparte):
+- 3-5 maximo
+- Siempre incluir #LegalTech y #GovTech
+- #DigestIA solo si el post habla del proyecto
+
+=============================================
+ESPECIFICACIONES TECNICAS
+=============================================
+- Longitud total: entre 1,300 y 1,600 caracteres (este es el sweet spot verificado para engagement)
+- NO links en el cuerpo del post (van en primer comentario)
+- Saltos de linea frecuentes — maximo 2 oraciones por bloque visual
+- Sin hashtags dentro del texto
+- El post debe poder leerse en 60-90 segundos
+
+=============================================
+RESPONDE EN JSON CON ESTE SCHEMA EXACTO:
+=============================================
 {
-  "post_body": "string con \\n para saltos",
-  "hashtags": ["#DigestIA", "#LegalTech", "#IAenGobierno"],
-  "first_comment": "string para 1er comentario",
+  "post_body": "string completo del post con \\n para saltos de linea",
+  "hashtags": ["#LegalTech", "#GovTech", "#DigestIA"],
+  "first_comment": "string para publicar como primer comentario (incluir link relevante si aplica, y un complemento que aporte valor adicional)",
   "best_posting_time": "Martes 8:00 AM GMT-3",
-  "word_count": 175,
-  "engagement_prediction": "high",
-  "suggested_image": "string descripcion del visual"
+  "char_count": 1400,
+  "engagement_prediction": "medium",
+  "suggested_image": "string descripcion del visual que deberia acompanar el post",
+  "tone_check": "string breve explicando por que este post NO es grandilocuente y SI aporta valor"
 }
 
 engagement_prediction: "low"|"medium"|"high"
-best_posting_time: "Martes 8:00 AM GMT-3" o "Miercoles 8:00 AM GMT-3" o "Jueves 8:00 AM GMT-3"
-hashtags: 3-5 items, siempre incluir #DigestIA y #LegalTech
-Responde SOLO JSON valido.`;
+best_posting_time: elegir entre "Martes 8:00 AM GMT-3", "Martes 9:00 AM GMT-3", "Jueves 8:00 AM GMT-3", "Jueves 9:00 AM GMT-3"
+hashtags: 3-5 items
+char_count: debe estar entre 1300 y 1600
+Responde SOLO JSON valido, sin backticks ni texto adicional.`;
 
     let data;
     try {
@@ -77,15 +173,16 @@ Responde SOLO JSON valido.`;
       return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
     }
 
-    // Ensure structure
+    // Ensure structure with defaults
     const result = {
       post_body: data.post_body || '',
-      hashtags: data.hashtags || ['#DigestIA', '#LegalTech'],
+      hashtags: data.hashtags || ['#LegalTech', '#GovTech'],
       first_comment: data.first_comment || '',
       best_posting_time: data.best_posting_time || 'Martes 8:00 AM GMT-3',
-      word_count: data.word_count || 0,
+      char_count: data.char_count || (data.post_body ? data.post_body.length : 0),
       engagement_prediction: data.engagement_prediction || 'medium',
       suggested_image: data.suggested_image || '',
+      tone_check: data.tone_check || '',
     };
 
     // Save to Supabase (non-blocking)
