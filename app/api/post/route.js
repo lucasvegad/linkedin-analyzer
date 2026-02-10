@@ -18,7 +18,7 @@ PERFIL DE LUCAS (usar solo lo real):
 ✅ Abogado "Vibe Coder" (sin background técnico)
 
 DIGESTIA - MUY IMPORTANTE:
-⚠️ Es un PROYECTO EN PLANIFICACIÓN para 2025
+⚠️ Es un PROYECTO EN PLANIFICACIÓN para 2026
 ⚠️ NO está implementado aún
 ⚠️ NO decir "tenemos DigestIA funcionando"
 ✅ SÍ decir: "estamos desarrollando", "próximo paso", "en roadmap", "planificación 2025"
