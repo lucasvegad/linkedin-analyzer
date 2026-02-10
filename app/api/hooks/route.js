@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { askGemini } from '../../../lib/gemini';
+import { generateWithGemini, askGemini } from '../../../lib/gemini';
 
 export async function POST(request) {
   try {
@@ -8,65 +8,74 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Falta el trend' }, { status: 400 });
     }
 
-    const prompt = `Generá 6 hooks de LinkedIn para Lucas Vega.
+    const prompt = `Genera 6 hooks de LinkedIn para Lucas Vega.
 
 Tema: "${trend.title}"
-Contexto real: "${trend.description}"
+Contexto: "${trend.description}"
 Pilar: ${trend.suggested_pillar}
-Ángulo de Lucas: "${trend.lucas_angle}"
-Keyword original: "${query}"
+Angulo: "${trend.lucas_angle}"
 
-=== SOBRE LUCAS (datos VERIFICABLES, no exagerar) ===
-- Cargo actual: Secretario del Digesto Jurídico & Modernización, Montecarlo, Misiones
-- Ex concejal (2021-2025, gestión finalizada el 10/12/2025) — 189 proyectos legislativos presentados
-- Proyecto DigestIA: chatbot IA para consulta legislativa municipal — EN DESARROLLO para 2026, NO implementado aún
-- El digesto tiene 172 ordenanzas (ya estaban digitalizadas, Lucas NO las digitalizó)
-- Montecarlo tiene ~35,000 habitantes
-- Se define como "Abogado Tech" y "Vibe Coder" — construye prototipos con IA sin ser programador
-- Stack: Claude, Gemini, Supabase, Vercel
+=== SOBRE LUCAS (NO exagerar) ===
+Cargo actual: Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones.
+Ex concejal (2021-2025, gestion terminada). 189 proyectos legislativos.
+DigestIA: proyecto de chatbot IA EN DESARROLLO para 2026, NO implementado.
+Las 172 ordenanzas ya estaban digitalizadas (el NO las digitalizo).
+"Abogado Tech" y "Vibe Coder". Stack: Claude, Gemini, Supabase, Vercel.
 
-=== REGLAS ESTRICTAS PARA LOS HOOKS ===
-- NO decir "implementamos DigestIA" ni "DigestIA atiende a 25K vecinos" (es un proyecto, no está en producción)
-- NO decir "soy concejal" (ya terminó su gestión)
-- NO decir "digitalicé 172 ordenanzas" (ya estaban digitalizadas)
-- SÍ usar: "estoy desarrollando", "mi experiencia como ex concejal", "proyecto en desarrollo"
-- SÍ usar datos reales: 189 proyectos legislativos, cargo de Secretario, "Abogado Tech"
-- Tono: profesional, cercano, honesto. NUNCA grandilocuente ni exagerado
-- Los hooks deben sonar como una persona real hablando, no como marketing corporativo
+PROHIBIDO: "soy concejal", "digitalice ordenanzas", "DigestIA sirve a 25K vecinos".
+CORRECTO: "ex concejal", "proyecto en desarrollo", "estoy construyendo".
 
-=== FÓRMULAS (exactamente 1 de cada) ===
-1. Contraintuitivo: "[Creencia común] está mal. Esto es lo que aprendí."
-2. Número específico: "[N] [resultado concreto] en [tiempo]"
-3. Pregunta retórica: "¿[Pregunta que genera curiosidad]?"
-4. Historia personal: "Hace [tiempo], [situación]. Hoy [resultado]."
-5. Controversial: "[Opinión fuerte y directa sobre el nicho]"
-6. Lista prometida: "[N] cosas que [resultado valioso]"
+Formulas (1 de cada):
+1. Contraintuitivo: "[Creencia comun] esta mal."
+2. Numero: "[N] [resultado] en [tiempo]"
+3. Pregunta retorica
+4. Historia personal: "Hace [tiempo]..."
+5. Controversial: Opinion fuerte
+6. Lista: "[N] cosas que [resultado]"
 
-JSON schema exacto:
+Tono: persona real, cercano, honesto. NO marketing corporativo.
+
+JSON exacto:
 {
   "hooks": [
     {
-      "text": "string hook exacto listo para publicar en LinkedIn",
+      "text": "string hook listo para publicar",
       "formula_type": "contraintuitivo",
       "estimated_engagement": "high",
       "best_format": "texto_imagen",
-      "follow_up_angle": "string dirección del post completo"
+      "follow_up_angle": "string direccion del post"
     }
   ],
   "recommended_top3": [0, 2, 4]
 }
 
-Para formula_type solo: "contraintuitivo", "numero", "pregunta", "historia", "controversial", "lista"
-Para estimated_engagement solo: "low", "medium", "high", "viral"
-Para best_format solo: "carrusel", "texto_imagen", "video", "solo_texto"
-recommended_top3 es un array de 3 índices (0-5) de los mejores hooks.
-Respondé SOLO con JSON válido.`;
+formula_type: "contraintuitivo"|"numero"|"pregunta"|"historia"|"controversial"|"lista"
+estimated_engagement: "low"|"medium"|"high"|"viral"
+best_format: "carrusel"|"texto_imagen"|"video"|"solo_texto"
+Responde SOLO JSON valido.`;
 
-    const data = await askGemini(prompt);
-    return NextResponse.json(data);
+    let data;
+    try {
+      data = await generateWithGemini(prompt);
+    } catch (gErr) {
+      console.error('Gemini hooks error:', gErr);
+      return NextResponse.json({ error: 'Error generando hooks: ' + gErr.message }, { status: 500 });
+    }
+
+    if (data._parseError) {
+      return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
+    }
+
+    // Ensure structure
+    const result = {
+      hooks: data.hooks || [],
+      recommended_top3: data.recommended_top3 || [0, 1, 2],
+    };
+
+    return NextResponse.json(result);
 
   } catch (err) {
     console.error('Hooks error:', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Error desconocido' }, { status: 500 });
   }
 }
