@@ -13,7 +13,7 @@ export async function POST(request) {
     let perplexityResult;
     try {
       perplexityResult = await searchPerplexity(query);
-      console.log('Perplexity result:', perplexityResult); // ← MOVIDO ANTES del return
+      console.log('Perplexity result:', perplexityResult);
     } catch (error) {
       console.error('Perplexity error:', error);
       return Response.json({ 
@@ -23,43 +23,46 @@ export async function POST(request) {
 
     // 2. Procesar con Gemini
     const prompt = `Analyze these trends about "${query}" and return a JSON with this structure:
+{
+  "trends": [
     {
-      "trends": [
-        {
-          "title": "Trend title",
-          "description": "Brief description",
-          "source": "URL source"
-        }
-      ],
-      "angles": ["angle1", "angle2", "angle3"],
-      "contentGaps": ["gap1", "gap2"]
+      "title": "Trend title",
+      "description": "Brief description", 
+      "source_url": "https://example.com",
+      "relevance_score": 8,
+      "suggested_pillar": "LegalTech",
+      "saturation": "medium",
+      "lucas_angle": "Your unique angle"
     }
-    
-    Data to analyze: ${perplexityResult}`;
+  ],
+  "unique_angles": [
+    {
+      "angle": "Unique angle description",
+      "why_only_lucas": "Why this is unique to you",
+      "potential_virality": "high"
+    }
+  ],
+  "content_gaps": [
+    {
+      "topic": "Gap topic",
+      "demand_signal": "Why people want this",
+      "suggested_approach": "How to approach it"
+    }
+  ],
+  "sources": ["https://source1.com", "https://source2.com"]
+}
 
-    let geminiResult;
+Data to analyze: ${perplexityResult}`;
+
+    let parsedResult;
     try {
-      geminiResult = await generateWithGemini(prompt);
-      console.log('Gemini result:', geminiResult); // ← MOVIDO ANTES del return
+      // generateWithGemini ahora devuelve el objeto parseado directamente
+      parsedResult = await generateWithGemini(prompt);
+      console.log('Parsed result:', parsedResult);
     } catch (error) {
       console.error('Gemini error:', error);
       return Response.json({ 
         error: 'Error analyzing trends: ' + error.message 
-      }, { status: 500 });
-    }
-
-    // 3. Parsear respuesta de Gemini
-    let parsedResult;
-    try {
-      // Limpiar posible markdown de la respuesta
-      const cleanJson = geminiResult.replace(/```json\n?|\n?```/g, '').trim();
-      parsedResult = JSON.parse(cleanJson);
-      console.log('Parsed result:', parsedResult); // ← MOVIDO ANTES del return
-    } catch (error) {
-      console.error('Parse error:', error);
-      console.error('Gemini raw response:', geminiResult);
-      return Response.json({ 
-        error: 'Error parsing analysis result' 
       }, { status: 500 });
     }
 
@@ -79,4 +82,4 @@ export async function POST(request) {
       error: 'Internal server error: ' + error.message 
     }, { status: 500 });
   }
-} // ← FALTABA ESTA LLAVE DE CIERRE
+}
