@@ -520,11 +520,57 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Visual suggestion */}
+                {/* Visual suggestion + Image Prompt */}
                 {postData.suggested_image && (
                   <div style={{ marginTop: 12, background: '#EBF5FF', border: '1px solid #BFDBFE', borderRadius: 8, padding: 16 }}>
                     <p style={{ fontWeight: 600, fontSize: 13, margin: '0 0 8px', color: '#004182' }}>🖼️ Visual sugerido:</p>
                     <p style={{ margin: 0, fontSize: 14, color: '#333' }}>{postData.suggested_image}</p>
+                  </div>
+                )}
+
+                {/* Prompt para Imagen 3 / Nano Banana */}
+                {postData.image_prompt && (
+                  <div style={{ marginTop: 12, background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 8, padding: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                      <p style={{ fontWeight: 600, fontSize: 13, margin: 0, color: '#166534' }}>🎨 Prompt para Nano Banana / Imagen 3:</p>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(postData.image_prompt);
+                          const btn = document.getElementById('copy-img-prompt');
+                          if (btn) { btn.textContent = '✅ Copiado!'; setTimeout(() => { btn.textContent = '📋 Copiar'; }, 2000); }
+                        }}
+                        id="copy-img-prompt"
+                        style={{
+                          background: '#166534',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 6,
+                          padding: '4px 12px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        📋 Copiar
+                      </button>
+                    </div>
+                    <p style={{
+                      margin: 0,
+                      fontSize: 13,
+                      color: '#1a1a1a',
+                      background: '#DCFCE7',
+                      padding: 12,
+                      borderRadius: 6,
+                      fontFamily: 'monospace',
+                      lineHeight: 1.5,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                    }}>
+                      {postData.image_prompt}
+                    </p>
+                    <p style={{ margin: '8px 0 0', fontSize: 11, color: '#6B7280', fontStyle: 'italic' }}>
+                      Prompt optimizado para Google Imagen 3 / Nano Banana Pro. Arquitectura 7 capas. Pegar directamente en AI Studio o Nano Banana.
+                    </p>
                   </div>
                 )}
               </div>
