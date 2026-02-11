@@ -38,128 +38,140 @@ PROYECTO DigestIA:
 - Stack tecnico: Claude API, Gemini, Supabase, Vercel
 
 DATOS DEMOGRAFICOS:
-- Montecarlo ciudad: 25,981 habitantes (Censo 2022 INDEC). NO usar 35,000 (eso es el departamento completo)
+- Montecarlo ciudad: 25,981 habitantes (Censo 2022 INDEC). NO usar 35,000
 
 IDENTIDAD PROFESIONAL:
-- Se posiciona como profesional tecnico que comparte su proceso
-- NO usar "Vibe Coder" ni "Abogado Tech" como etiquetas — esas son autodescripciones informales, no titulos
+- Profesional tecnico que comparte su proceso
 - El expertise se DEMUESTRA con datos y proceso, no se ANUNCIA con etiquetas
 
 =============================================
 REGLAS DE VOZ "LUCAS CALIBRADO"
-(Basadas en benchmark de referentes LegalTech: Corvalan, Colin Levy, Federico Ast)
 =============================================
 
-FORMULA DE CONTENIDO: 70% valor educativo + 20% proceso personal + 10% logros propios
+FORMULA: 70% valor educativo + 20% proceso personal + 10% logros propios
 
-1. PRIMERA PERSONA PLURAL siempre que sea posible:
-   - SI: "Descubrimos que...", "Estamos trabajando en...", "Aprendimos que..."
-   - NO: "Yo implemente...", "Yo soy el que..."
+1. PRIMERA PERSONA PLURAL: "Descubrimos...", "Estamos trabajando...", "Aprendimos..."
+2. DATOS COMO PROTAGONISTA: No Lucas como protagonista
+3. VULNERABILIDAD CONTROLADA: Compartir obstaculos y errores
+4. NUNCA AUTOPROCLAMARSE: Prohibido "pionero", "visionario", "lider", "revolucionario"
+5. MUNICIPIO CHICO COMO VENTAJA: "Lo que funciona en 25,000 hab puede escalar"
+6. PREGUNTAS GENUINAS: "¿Trabajas en GovTech? ¿Como manejan X?"
+7. LO PERSONAL APARECE TARDE: Hook es dato/pregunta. Lucas aparece en 3er-4to parrafo
 
-2. DATOS COMO PROTAGONISTA (no Lucas como protagonista):
-   - SI: "Redujimos de 3 dias a 15 minutos la busqueda normativa"
-   - NO: "Soy un innovador que transformo la legislacion"
-
-3. VULNERABILIDAD CONTROLADA — compartir obstaculos y errores:
-   - SI: "La primera vez que intentamos X, fue un desastre. Esto tuvimos que cambiar..."
-   - SI: "Todavia no lo logramos, pero esto es lo que estamos probando..."
-   - NO: Presentar todo como exito sin fisuras
-
-4. NUNCA AUTOPROCLAMARSE:
-   - PROHIBIDO: "pionero", "visionario", "lider", "revolucionario", "primer municipio con IA"
-   - PROHIBIDO: "estoy transformando", "estoy revolucionando"
-   - El experto se demuestra, no se anuncia
-
-5. CONTEXTO DE MUNICIPIO CHICO COMO VENTAJA (no como limitacion):
-   - SI: "Lo que funciona en un municipio de 25,000 habitantes puede escalar a cualquier gobierno local"
-   - NO: tono de victima o de heroe contra las circunstancias
-
-6. PREGUNTAS GENUINAS AL CIERRE (no genericas):
-   - SI: "¿Otros municipios estan usando herramientas similares? Me interesa escuchar experiencias"
-   - SI: "¿Trabajas en GovTech? ¿Como manejan [problema especifico]?"
-   - NO: "¿Que opinan?", "¿Que piensan?", "¿Estan de acuerdo?"
-
-7. LO PERSONAL APARECE TARDE, NO AL PRINCIPIO:
-   - El hook es un dato, pregunta, o micro-historia universal
-   - La experiencia personal de Lucas aparece recien en el 3er o 4to parrafo
-   - Y siempre como "nosotros/estamos trabajando", no como "yo logre"
+PROHIBIDO: "DigestIA sirve a X vecinos", "soy concejal", "digitalice ordenanzas", "35,000 hab", "primer municipio con IA", "Hoy quiero compartir...", humble bragging, superlativos
 
 =============================================
-PROHIBICIONES ABSOLUTAS
-=============================================
-- "DigestIA atiende/sirve a 25K vecinos" (no esta en produccion)
-- "Soy concejal" o "como concejal" en presente (ya termino)
-- "Digitalice/digitalizamos 172 ordenanzas" (ya estaban digitalizadas, y son 176)
-- "Primer municipio de Argentina con IA" (no verificable)
-- "35,000 habitantes" (son 25,981 en la ciudad)
-- Empezar con "Hoy quiero compartir...", "Les cuento que...", "Yo creo que..."
-- Tono de marketing corporativo, comunicado de prensa, o manifiesto visionario
-- Humble bragging (es peor percibido que presumir directamente segun Harvard)
-- Emojis decorativos excesivos (maximo 2-3 en todo el post, y solo si aportan)
-
-=============================================
-ESTRUCTURA DEL POST (formato PAS + Storytelling)
+ESTRUCTURA PAS (1,300-1,600 caracteres)
 =============================================
 
-HOOK (primeros 210 caracteres, ANTES del "ver mas"):
-- Dato concreto, pregunta provocadora, o micro-historia
-- NUNCA empezar con "yo"
-- Debe generar curiosidad para que hagan clic en "ver mas"
+HOOK (210 chars max, antes del "ver mas"):
+- Dato, pregunta provocadora, o micro-historia. NUNCA "yo"
 
 [linea en blanco]
 
 PROBLEMA/CONTEXTO (2-3 oraciones):
-- Anclar en la realidad del LECTOR, no en la de Lucas
-- Usar datos reales y verificables
-- Que el lector piense "esto me pasa a mi tambien"
+- Realidad del LECTOR, no de Lucas
 
 [linea en blanco]
 
-INSIGHT/PROCESO (el corazon del post):
-- Lo que se aprendio, con datos especificos
-- Si aplica: lista numerada de 2-3 puntos (no mas)
-- Aqui puede aparecer la experiencia personal, en plural, como caso de estudio
+INSIGHT/PROCESO:
+- Lo que se aprendio con datos. Lista 2-3 puntos si aplica
+- Experiencia personal en plural como caso de estudio
 
 [linea en blanco]
 
-CTA (cierre):
-- Pregunta genuina y especifica que invite al dialogo
-- Dirigida a un publico concreto ("¿Trabajas en GovTech?", "¿Otros municipios...")
-- NO preguntas vacias como "¿Que opinan?"
+CTA: Pregunta genuina y especifica
 
-HASHTAGS (separados al final, en linea aparte):
-- 3-5 maximo
-- Siempre incluir #LegalTech y #GovTech
-- #DigestIA solo si el post habla del proyecto
+HASHTAGS: 3-5 al final. Siempre #LegalTech y #GovTech
 
 =============================================
-ESPECIFICACIONES TECNICAS
+IMAGEN CON BRANDING — PROMPT PROFESIONAL
 =============================================
-- Longitud total: entre 1,300 y 1,600 caracteres (este es el sweet spot verificado para engagement)
-- NO links en el cuerpo del post (van en primer comentario)
-- Saltos de linea frecuentes — maximo 2 oraciones por bloque visual
-- Sin hashtags dentro del texto
-- El post debe poder leerse en 60-90 segundos
+
+Genera un prompt profesional en INGLES para crear la imagen del post con Google Imagen 3 (Nano Banana Pro).
+
+El prompt DEBE seguir la ARQUITECTURA DE 7 CAPAS en narrativa fluida (80-150 palabras):
+
+CAPA 1 - SUJETO: Que aparece (persona, objeto, escena). Ser especifico.
+CAPA 2 - CONTEXTO: Donde ocurre.
+CAPA 3 - LIGHTING: Tipo de iluminacion.
+CAPA 4 - ESTILO: Estilo visual.
+CAPA 5 - COMPOSICION: Angulo y encuadre.
+CAPA 6 - MOOD: Emocion/atmosfera.
+CAPA 7 - QUALITY: Tecnica fotografica.
+
+=== IDENTIDAD VISUAL "LUCAS VEGA BRAND" (OBLIGATORIO en cada prompt) ===
+
+La imagen DEBE reflejar esta identidad de marca:
+
+PALETA DE COLORES (incorporar siempre):
+- Color dominante: deep navy blue (#0B1931) — fondos, sombras, ambiente general
+- Acento principal: emerald green (#00C17A) — highlights, bordes de luz, elementos que llaman atencion
+- Acento secundario: muted gold (#886E1B) — solo para detalles minimos de prestigio
+- Textos/elementos claros: white y soft gray (#9EA6C1)
+- REGLA: La combinacion navy + emerald green SIEMPRE debe ser visible en la imagen
+
+ATMOSFERA VISUAL:
+- Dark theme predominante — fondos oscuros navy, iluminacion dramatica
+- Estilo tech-institucional: mezcla de tecnologia moderna con seriedad legal/gubernamental
+- Elementos tech sutiles: pantallas con codigo o interfaces, luz de monitor, teclados, terminales
+- Elementos legales sutiles: libros de derecho, documentos oficiales, sellos, carpetas
+- Fusion de ambos mundos: nunca puramente tech ni puramente legal
+- Estetica limpia y minimalista, nunca recargada
+
+ILUMINACION CARACTERISTICA:
+- Rim lighting o edge lighting en emerald green (contorno verde en sujetos/objetos)
+- Luz principal suave y direccional (no plana)
+- Glow teal/verde sutil en pantallas o elementos tecnologicos
+- Contraste alto: fondos muy oscuros con highlights brillantes
+
+COMPOSICION PREFERIDA:
+- Profundidad de campo corta (fondo desenfocado)
+- Composicion limpia con espacio negativo
+- Si hay persona: hombre latinoamericano de ~30 anos, profesional, ropa formal pero moderna (no traje estricto), expresion segura y cercana
+
+LO QUE NO DEBE TENER LA IMAGEN:
+- Fondos blancos o claros genericos (eso NO es la marca)
+- Estetica de stock photo corporativo (gente sonriendo forzado, oficinas genericas)
+- Colores calidos dominantes (naranja, rojo, amarillo) — la marca es fria: navy + green
+- Texto o letras en la imagen (text rendering es impredecible)
+- Mas de 5 objetos especificos (numerical reasoning debil)
+- Escenas demasiado complejas o recargadas
+
+BUENOS EJEMPLOS de prompts con branding Lucas Vega:
+- "A Latin American professional in his early 30s sitting at a dark navy workspace, laptop open with code interface glowing in emerald green light. Legal documents and a small Argentine flag on the desk. Dramatic rim lighting in teal-green outlining his silhouette against the deep navy background. Professional editorial photography, cinematic mood. Medium close-up, rule of thirds, shallow depth of field with soft bokeh. Confident and focused expression. Shot on Sony A7IV, 85mm f/1.4 lens, ISO 400, moody color grading emphasizing navy blues and emerald greens, 8K resolution."
+- "Overhead flat lay of a dark navy wooden desk. A laptop showing a chatbot interface with emerald green UI elements. Stack of Argentine legal code books with dark leather covers. A coffee cup, minimalist pen, and small succulent plant. Soft directional light from upper left creating long shadows. Emerald green LED strip glow along desk edge. Clean minimalist tech-legal aesthetic. Professional product photography, 35mm lens, f/2.8, high dynamic range, dark moody color palette with navy and green accents, 4K resolution."
+- "Abstract close-up of a computer screen displaying legal document text, bathed in emerald green monitor glow. Deep navy blue reflections on the glass surface. Blurred bokeh lights in green and gold in the background. Atmospheric and contemplative mood. Macro photography style, extremely shallow depth of field. Shot on Canon EOS R5, 100mm macro f/2.8, ISO 200, cinematic color grading, 8K resolution."
+
+REGLAS TECNICAS DEL PROMPT:
+- SIEMPRE en INGLES
+- 80-150 palabras, narrativa descriptiva fluida
+- NO negative prompts
+- Describir positivamente
+- Terminologia fotografica profesional
+- Relevante al contenido del post
 
 =============================================
-RESPONDE EN JSON CON ESTE SCHEMA EXACTO:
+RESPONDE EN JSON:
 =============================================
 {
-  "post_body": "string completo del post con \\n para saltos de linea",
+  "post_body": "string completo del post con \\n para saltos",
   "hashtags": ["#LegalTech", "#GovTech", "#DigestIA"],
-  "first_comment": "string para publicar como primer comentario (incluir link relevante si aplica, y un complemento que aporte valor adicional)",
+  "first_comment": "string para 1er comentario con link relevante",
   "best_posting_time": "Martes 8:00 AM GMT-3",
   "char_count": 1400,
   "engagement_prediction": "medium",
-  "suggested_image": "string descripcion del visual que deberia acompanar el post",
-  "tone_check": "string breve explicando por que este post NO es grandilocuente y SI aporta valor"
+  "suggested_image": "string breve en espanol describiendo que imagen usar",
+  "image_prompt": "string COMPLETO en INGLES del prompt para Imagen 3/Nano Banana Pro. DEBE incluir navy blue + emerald green como colores dominantes, dark theme, rim lighting verde, estetica tech-legal. 80-150 palabras, narrativa fluida, 7 capas.",
+  "tone_check": "string breve explicando por que este post NO es grandilocuente"
 }
 
 engagement_prediction: "low"|"medium"|"high"
-best_posting_time: elegir entre "Martes 8:00 AM GMT-3", "Martes 9:00 AM GMT-3", "Jueves 8:00 AM GMT-3", "Jueves 9:00 AM GMT-3"
+best_posting_time: "Martes 8:00 AM GMT-3"|"Martes 9:00 AM GMT-3"|"Jueves 8:00 AM GMT-3"|"Jueves 9:00 AM GMT-3"
 hashtags: 3-5 items
-char_count: debe estar entre 1300 y 1600
-Responde SOLO JSON valido, sin backticks ni texto adicional.`;
+char_count: entre 1300 y 1600
+image_prompt: OBLIGATORIO, en ingles, 80-150 palabras, con branding navy+green
+Solo JSON valido, sin backticks.`;
 
     let data;
     try {
@@ -182,6 +194,7 @@ Responde SOLO JSON valido, sin backticks ni texto adicional.`;
       char_count: data.char_count || (data.post_body ? data.post_body.length : 0),
       engagement_prediction: data.engagement_prediction || 'medium',
       suggested_image: data.suggested_image || '',
+      image_prompt: data.image_prompt || '',
       tone_check: data.tone_check || '',
     };
 
