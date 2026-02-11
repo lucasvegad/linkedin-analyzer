@@ -1,45 +1,25 @@
 import { NextResponse } from 'next/server';
 import { searchPerplexity } from '../../../lib/perplexity';
-import { generateWithGemini } from '../../../lib/gemini';
+import { generateWithGemini, askGemini } from '../../../lib/gemini';
 import { supabase } from '../../../lib/supabase';
 
 export async function POST(request) {
   try {
     const { query } = await request.json();
-    
     if (!query) {
       return NextResponse.json({ error: 'Falta la keyword' }, { status: 400 });
     }
 
-    console.log('=== INICIANDO ANÁLISIS ===');
-    console.log('Query:', query);
-
-    // PASO 1: Buscar datos con Perplexity
+    // PASO 1: Buscar datos REALES con Perplexity Sonar
     let perplexityData;
     try {
-      console.log('Llamando a Perplexity...');
       perplexityData = await searchPerplexity(query);
-      console.log('Perplexity OK - content length:', perplexityData?.content?.length);
     } catch (pErr) {
       console.error('Perplexity error:', pErr);
-      return NextResponse.json({ 
-        error: 'Error buscando tendencias: ' + pErr.message 
-      }, { status: 500 });
+      return NextResponse.json({ error: 'Error buscando tendencias: ' + pErr.message }, { status: 500 });
     }
 
-    // Validar datos de Perplexity
-    if (!perplexityData?.content) {
-      console.error('Perplexity sin contenido:', perplexityData);
-      return NextResponse.json({ 
-        error: 'Perplexity no devolvió contenido válido' 
-      }, { status: 500 });
-    }
-
-    // PASO 2: Preparar y enviar prompt a Gemini
-    const citationsText = (perplexityData.citations || [])
-      .map((url, i) => `[${i + 1}] ${url}`)
-      .join('\n');
-
+    // PASO 2: Analizar con Gemini
     const geminiPrompt = `Sos un estratega de contenido LinkedIn especializado en LegalTech y GovTech.
 Te doy datos REALES encontrados en internet sobre: "${query}"
 
@@ -47,7 +27,7 @@ DATOS REALES:
 ${perplexityData.content}
 
 FUENTES:
-${citationsText}
+${(perplexityData.citations || []).map((url, i) => '[' + (i+1) + '] ' + url).join('\n')}
 
 === PERFIL DE LUCAS VEGA (datos verificados) ===
 CARGO ACTUAL: Secretario del Digesto Juridico & Modernizacion, Concejo Deliberante de Montecarlo, Misiones.
@@ -87,26 +67,19 @@ saturation: "low"|"medium"|"high"
 suggested_pillar: "DigestIA"|"LegalTech"|"IA_gobierno"|"Aprendizaje"|"Personal"
 suggested_format: "carrusel"|"texto_imagen"|"video"|"encuesta"|"solo_texto"
 potential_virality: "low"|"medium"|"high"
-Solo JSON valido, sin backticks ni texto adicional.`;
+Solo JSON valido, sin backticks.`;
 
     let geminiResult;
     try {
-      console.log('Llamando a Gemini...');
       geminiResult = await generateWithGemini(geminiPrompt);
-      console.log('Gemini OK - keys:', Object.keys(geminiResult));
     } catch (gErr) {
       console.error('Gemini error:', gErr);
-      return NextResponse.json({ 
-        error: 'Error en analisis Gemini: ' + gErr.message 
-      }, { status: 500 });
+      return NextResponse.json({ error: 'Error en analisis Gemini: ' + gErr.message }, { status: 500 });
     }
 
-    // Validar estructura de respuesta
-    if (!geminiResult || typeof geminiResult !== 'object') {
-      console.error('Gemini no devolvió objeto:', geminiResult);
-      return NextResponse.json({ 
-        error: 'Respuesta de Gemini no es un objeto válido' 
-      }, { status: 500 });
+    if (geminiResult._parseError) {
+      console.error('Gemini returned non-JSON');
+      return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
     }
 
     const analysis = {
@@ -117,7 +90,7 @@ Solo JSON valido, sin backticks ni texto adicional.`;
       search_results: perplexityData.search_results || [],
     };
 
-    // Guardar en Supabase (no bloqueante)
+    // Save (non-blocking)
     try {
       await supabase.from('analyses').insert({
         query,
@@ -125,18 +98,14 @@ Solo JSON valido, sin backticks ni texto adicional.`;
         gemini_analysis: geminiResult,
         sources: perplexityData.citations,
       });
-      console.log('Guardado en Supabase OK');
     } catch (dbErr) {
-      console.error('Supabase error (no bloqueante):', dbErr);
+      console.error('Supabase save error:', dbErr);
     }
 
-    console.log('=== ANÁLISIS COMPLETADO ===');
     return NextResponse.json(analysis);
 
   } catch (err) {
-    console.error('Error general en analyze:', err);
-    return NextResponse.json({ 
-      error: err.message || 'Error desconocido' 
-    }, { status: 500 });
+    console.error('Analyze error:', err);
+    return NextResponse.json({ error: err.message || 'Error desconocido' }, { status: 500 });
   }
 }
