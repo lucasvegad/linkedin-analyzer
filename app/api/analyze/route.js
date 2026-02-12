@@ -10,7 +10,6 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Falta la keyword' }, { status: 400 });
     }
 
-    // PASO 1: Buscar datos REALES con Perplexity Sonar
     let perplexityData;
     try {
       perplexityData = await searchPerplexity(query);
@@ -19,55 +18,75 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Error buscando tendencias: ' + pErr.message }, { status: 500 });
     }
 
-    // PASO 2: Analizar con Gemini
-    const geminiPrompt = `Sos un estratega de contenido LinkedIn especializado en LegalTech y GovTech.
-Te doy datos REALES encontrados en internet sobre: "${query}"
+    const geminiPrompt = `Sos un estratega de contenido LinkedIn para alguien que esta EMPEZANDO a construir autoridad en LegalTech (24 conexiones, perfil nuevo). Tu trabajo es encontrar tendencias donde Lucas pueda APORTAR VALOR INMEDIATO al lector, no promocionar su proyecto.
 
-DATOS REALES:
+DATOS REALES DE INTERNET sobre "${query}":
 ${perplexityData.content}
 
 FUENTES:
 ${(perplexityData.citations || []).map((url, i) => '[' + (i+1) + '] ' + url).join('\n')}
 
-=== PERFIL DE LUCAS VEGA (datos verificados) ===
-CARGO ACTUAL: Secretario del Digesto Juridico & Modernizacion, Concejo Deliberante de Montecarlo, Misiones.
-EXPERIENCIA: Ex concejal (2021-2025, gestion finalizada 10/12/2025). 189 proyectos legislativos. +10 anos experiencia legal.
-PROYECTO DigestIA: Chatbot IA para consulta legislativa municipal — EN DESARROLLO 2026, NO en produccion. Base: Digesto certificado (4ta Consolidacion, nov 2025), 176 normas vigentes. Lucas NO digitalizo las ordenanzas.
-CIUDAD: Montecarlo, 25,981 habitantes (Censo 2022 INDEC). NO usar 35,000.
-STACK: Claude API, Gemini, Supabase, Vercel.
-PILARES: 35% DigestIA, 25% LegalTech, 20% IA gobierno, 15% Aprendizaje, 5% Personal.
+=== PERFIL DE LUCAS VEGA ===
+Cargo: Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones (25,981 hab).
+Experiencia: Ex concejal (2021-2025). 189 proyectos legislativos. +10 anos legal.
+Proyecto: DigestIA chatbot IA legislativo — EN DESARROLLO 2026, no implementado.
+Base: Digesto certificado, 176 normas vigentes. Lucas NO digitalizo las ordenanzas.
+Stack: Claude API, Gemini, Supabase, Vercel.
 
-VOZ CALIBRADA: Profesional tecnico que comparte su proceso. 70% valor educativo, 20% proceso, 10% logros. Primera persona plural. Datos como protagonista. Sin autoproclamarse.
+=== ESTRATEGIA: CURADOR DE VALOR (no promotor de proyecto) ===
 
-PROHIBIDO: "es concejal", "digitalizo ordenanzas", "DigestIA sirve a X vecinos", "35,000 hab", "pionero", "visionario", "primer municipio con IA".
+Lucas esta en ETAPA INICIAL de LinkedIn. Con 24 conexiones, necesita APORTAR VALOR antes de hablar de su proyecto. La estrategia es:
 
-Genera un JSON con 5 trends, 3 unique_angles, 2 content_gaps:
+1. CURAR TENDENCIAS (40%): Tomar datos reales de Perplexity y agregar analisis/opinion profesional. El lector se lleva algo util HOY.
+2. EDUCAR (25%): Tutoriales, herramientas, explicaciones practicas que el lector pueda usar inmediatamente.
+3. CONTEXTUALIZAR (15%): Casos reales de IA en gobierno/LegalTech de OTROS (Prometea, Boti, casos internacionales) con analisis critico.
+4. COMPARTIR PROCESO (15%): La experiencia personal de Lucas como aprendizaje — DigestIA aparece ACA como subtema, no como pilar propio.
+5. HUMANIZAR (5%): Reflexiones profesionales.
+
+REGLA CLAVE: Cada trend debe responder la pregunta "¿que se lleva el lector despues de leer esto?" Si la respuesta es "conocer el proyecto de Lucas", NO sirve. Si la respuesta es "una herramienta nueva / un dato clave / una perspectiva util", SI sirve.
+
+PROHIBIDO: trends que solo sirvan para hablar de DigestIA. DigestIA puede aparecer como ejemplo o contexto, NUNCA como tema central.
+
+=== PILARES ACTUALIZADOS ===
+"Tendencias_LegalTech" (40%): Noticias, datos, analisis de tendencias. El lector se informa.
+"Educativo" (25%): Tutoriales, herramientas, como-hacer. El lector aprende algo practico.
+"IA_gobierno" (15%): Casos reales de otros gobiernos/instituciones. El lector entiende el contexto.
+"Proceso_personal" (15%): Experiencia de Lucas incluyendo DigestIA. El lector conecta con la persona.
+"Personal" (5%): Reflexiones de carrera.
+
+Genera JSON con 5 trends, 3 unique_angles, 2 content_gaps:
 {
   "trends": [
     {
-      "title": "string titulo conciso",
+      "title": "string titulo enfocado en VALOR para el lector",
       "description": "string 2-3 oraciones basadas en datos reales",
       "relevance_score": 8,
       "saturation": "low",
-      "lucas_angle": "string como Lucas puede cubrir esto desde su experiencia REAL y verificable, usando voz calibrada (proceso, no logros grandilocuentes)",
-      "suggested_pillar": "DigestIA",
+      "lucas_angle": "string como Lucas puede aportar VALOR UNICO al lector con este tema (no como puede hablar de DigestIA)",
+      "suggested_pillar": "Tendencias_LegalTech",
       "suggested_format": "carrusel",
-      "source_url": "string URL real de las fuentes"
+      "source_url": "string URL real",
+      "reader_takeaway": "string que se lleva el lector despues de leer este post"
     }
   ],
   "unique_angles": [
-    { "angle": "string", "why_only_lucas": "string basado en datos verificables", "potential_virality": "medium" }
+    { "angle": "string", "why_only_lucas": "string basado en experiencia real", "potential_virality": "medium" }
   ],
   "content_gaps": [
-    { "topic": "string", "demand_signal": "string", "suggested_approach": "string" }
+    { "topic": "string tema donde HAY DEMANDA y POCA OFERTA en espanol", "demand_signal": "string", "suggested_approach": "string enfocado en valor educativo" }
   ]
 }
 
+DISTRIBUCION OBLIGATORIA de los 5 trends:
+- 2 deben ser "Tendencias_LegalTech" (curar datos reales)
+- 1 debe ser "Educativo" (tutorial o herramienta practica)
+- 1 debe ser "IA_gobierno" (caso real de otro gobierno/institucion)
+- 1 debe ser "Proceso_personal" (experiencia de Lucas como aprendizaje)
+
 saturation: "low"|"medium"|"high"
-suggested_pillar: "DigestIA"|"LegalTech"|"IA_gobierno"|"Aprendizaje"|"Personal"
 suggested_format: "carrusel"|"texto_imagen"|"video"|"encuesta"|"solo_texto"
 potential_virality: "low"|"medium"|"high"
-Solo JSON valido, sin backticks.`;
+Solo JSON valido.`;
 
     let geminiResult;
     try {
@@ -78,7 +97,6 @@ Solo JSON valido, sin backticks.`;
     }
 
     if (geminiResult._parseError) {
-      console.error('Gemini returned non-JSON');
       return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
     }
 
@@ -90,7 +108,6 @@ Solo JSON valido, sin backticks.`;
       search_results: perplexityData.search_results || [],
     };
 
-    // Save (non-blocking)
     try {
       await supabase.from('analyses').insert({
         query,
