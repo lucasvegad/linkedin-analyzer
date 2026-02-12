@@ -11,61 +11,56 @@ export async function POST(request) {
     const prompt = `Genera 6 hooks de LinkedIn para Lucas Vega.
 
 Tema: "${trend.title}"
-Contexto real: "${trend.description}"
+Contexto: "${trend.description}"
 Pilar: ${trend.suggested_pillar}
 Angulo: "${trend.lucas_angle}"
-Keyword: "${query}"
+Valor para lector: "${trend.reader_takeaway || 'Informacion util'}"
 
-=== PERFIL (solo datos verificables) ===
-- Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones (25,981 hab)
-- Ex concejal (2021-2025). 189 proyectos legislativos
-- DigestIA: chatbot IA para legislacion municipal — EN DESARROLLO 2026, no implementado
-- Digesto certificado: 176 normas vigentes (4ta Consolidacion, nov 2025)
-- Stack: Claude, Gemini, Supabase, Vercel
+=== PERFIL (datos verificables) ===
+Secretario del Digesto Juridico, Montecarlo, Misiones (25,981 hab).
+Ex concejal (2021-2025). 189 proyectos legislativos.
+DigestIA: chatbot IA EN DESARROLLO 2026, no implementado.
+Digesto: 176 normas vigentes.
 
-=== REGLAS PARA LOS HOOKS ===
+=== REGLAS ===
+- NUNCA empezar con "yo"
+- Max 210 caracteres (lo visible antes de "ver mas")
+- El hook debe prometer VALOR AL LECTOR, no hablar del proyecto de Lucas
+- Si el pilar es "Tendencias_LegalTech" o "Educativo": el hook abre con dato o pregunta sobre el SECTOR
+- Si el pilar es "Proceso_personal": ahi si puede ser mas personal
+- Sonar como persona real, no copywriter
+- NO autoproclamarse, NO superlativos, NO humble bragging
+- PROHIBIDO: "DigestIA sirve a X vecinos", "soy concejal", "digitalice ordenanzas"
 
-Los hooks deben cumplir estas condiciones:
-1. NUNCA empezar con "yo" — el hook debe abrir con un dato, pregunta, o situacion
-2. Caber en los primeros 210 caracteres (lo que se ve antes de "ver mas")
-3. Generar curiosidad genuina, no clickbait vacio
-4. Sonar como una persona real, no como un copywriter de marketing
-5. NO autoproclamarse: nada de "pionero", "visionario", "lider", "revolucionario"
-6. NO ser grandilocuente ni usar superlativos ("increible", "impresionante", "historico")
-7. Los mejores hooks usan: datos concretos, preguntas provocadoras, o micro-historias
-8. Preferir primera persona plural ("descubrimos", "aprendimos") sobre singular
+BUENOS EJEMPLOS (valor para el lector):
+- "El 73% de los estudios juridicos en LATAM no usa ninguna herramienta de IA. Los datos de por que."
+- "3 herramientas gratuitas de IA legal que podes probar hoy. Las probe todas."
+- "Meta prohibio chatbots de IA en WhatsApp. Esto cambia todo para servicios gubernamentales."
+- "Brasil acaba de regular la IA. Que significa para abogados en Argentina."
+- "Tutorial rapido: como usar Claude para analizar contratos en 5 minutos."
 
-PROHIBIDO en hooks:
-- "DigestIA sirve a X vecinos" (no esta en produccion)
-- "Como concejal" en presente (ya no lo es)
-- "Digitalice ordenanzas" (ya estaban digitalizadas)
-- "35,000 habitantes" (son 25,981)
-- Humble bragging disfrazado de pregunta
+MALOS EJEMPLOS (hablan de Lucas, no aportan valor):
+- "Estoy desarrollando DigestIA para modernizar la legislacion"
+- "Como ex concejal, creo que la IA va a transformar el gobierno"
+- "Mi proyecto DigestIA esta cambiando como se consulta la ley"
 
-BUENOS EJEMPLOS de hooks calibrados:
-- "Meta acaba de prohibir chatbots de IA en WhatsApp. La politica ya esta vigente."
-- "176 normas vigentes. Un Digesto certificado. Y ninguna forma facil de consultarlo. Hasta ahora."
-- "En un municipio de 25,000 habitantes, ¿tiene sentido invertir en IA? Esto es lo que encontramos."
-- "3 dias para encontrar una ordenanza. 15 minutos con IA. El proceso que estamos probando."
-- "189 proyectos legislativos en 4 anos. Lo que aprendi sobre por que la ley no llega al ciudadano."
+Formulas (1 de cada):
+1. Contraintuitivo: dato que desafia creencia comun
+2. Numero: cifra concreta + resultado
+3. Pregunta provocadora (NO "¿Que opinan?")
+4. Micro-historia: situacion -> cambio
+5. Controversial: opinion fuerte sobre el sector
+6. Lista: N cosas que el lector puede usar
 
-=== FORMULAS (exactamente 1 de cada) ===
-1. Contraintuitivo: Desafiar una creencia comun del sector con un dato
-2. Numero especifico: Numero concreto + resultado medible + contexto temporal
-3. Pregunta provocadora: Pregunta que el lector no pueda ignorar (NO "¿Que opinan?")
-4. Micro-historia: "Hace [tiempo], [situacion concreta]. Hoy [cambio real]."
-5. Controversial: Opinion profesional fuerte y defendible sobre el sector
-6. Lista con promesa: "[N] cosas que [resultado especifico y creible]"
-
-=== RESPONDE EN JSON ===
+JSON:
 {
   "hooks": [
     {
-      "text": "string hook completo listo para publicar (max 210 caracteres)",
+      "text": "string max 210 chars",
       "formula_type": "contraintuitivo",
       "estimated_engagement": "high",
       "best_format": "texto_imagen",
-      "follow_up_angle": "string de que iria el post completo"
+      "follow_up_angle": "string de que va el post"
     }
   ],
   "recommended_top3": [0, 2, 4]
@@ -74,7 +69,6 @@ BUENOS EJEMPLOS de hooks calibrados:
 formula_type: "contraintuitivo"|"numero"|"pregunta"|"historia"|"controversial"|"lista"
 estimated_engagement: "low"|"medium"|"high"|"viral"
 best_format: "carrusel"|"texto_imagen"|"video"|"solo_texto"
-recommended_top3: indices de los 3 mejores hooks
 Solo JSON valido.`;
 
     let data;
@@ -89,12 +83,10 @@ Solo JSON valido.`;
       return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
     }
 
-    const result = {
+    return NextResponse.json({
       hooks: data.hooks || [],
       recommended_top3: data.recommended_top3 || [0, 1, 2],
-    };
-
-    return NextResponse.json(result);
+    });
 
   } catch (err) {
     console.error('Hooks error:', err);
