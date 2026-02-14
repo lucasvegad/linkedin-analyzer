@@ -6,33 +6,36 @@ export async function POST(request) {
       throw new Error('GROQ_API_KEY no está configurada');
     }
 
-    const prompt = `Eres un experto en tendencias de LinkedIn y content strategy.
+    const prompt = `Eres un estratega de contenido de LinkedIn especializado en identificar tendencias.
 
 PERFIL DEL USUARIO:
 ${profile}
 
 TAREA:
-Identifica las 5 tendencias MÁS RELEVANTES en LinkedIn ahora mismo que este profesional debería aprovechar para crear contenido. Para cada tendencia:
+Identifica las 5 tendencias MÁS RELEVANTES en LinkedIn ahora mismo para este profesional.
 
-1. **Nombre de la tendencia** (max 6 palabras)
-2. **Por qué es relevante ahora** (1-2 líneas)
-3. **Hook específico para post** (el gancho emocional/intelectual para abrir el post)
-4. **3 puntos clave** (bullet points concretos para desarrollar)
-5. **Call-to-action sugerido** (cómo cerrar el post)
+Para cada tendencia, genera un JSON con esta estructura EXACTA:
 
-FORMATO EXACTO:
----
-### [Nombre Tendencia]
-**Relevancia:** [explicación breve]
-**Hook:** "[frase inicial del post]"
-**Desarrollo:**
-- [punto 1]
-- [punto 2]
-- [punto 3]
-**CTA:** [cierre sugerido]
----
+{
+  "nombre": "Título corto (max 50 caracteres)",
+  "relevancia": "Por qué es importante AHORA (1-2 líneas, max 150 caracteres)",
+  "hook_sugerido": "Frase de apertura pegajosa para el post (max 100 caracteres)",
+  "puntos_clave": [
+    "Punto concreto 1 (max 80 caracteres)",
+    "Punto concreto 2 (max 80 caracteres)",
+    "Punto concreto 3 (max 80 caracteres)"
+  ],
+  "pilar_sugerido": "Nombre del pilar de contenido (ej: LegalTech, IA_gobierno, Educativo)",
+  "angulo_personal": "Cómo este profesional puede aportar valor único en esta tendencia (max 100 caracteres)"
+}
 
-Sé específico, accionable y enfocado en el nicho del usuario.`;
+IMPORTANTE:
+- Sé ESPECÍFICO al nicho del usuario
+- Los hooks deben ser emocionales o sorprendentes
+- Los puntos clave deben ser accionables
+- El ángulo personal debe conectar con la experiencia del usuario
+
+Devuelve un array JSON con las 5 tendencias. SOLO el JSON, sin texto adicional.`;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -41,10 +44,10 @@ Sé específico, accionable y enfocado en el nicho del usuario.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile', // ✅ Modelo actualizado
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 2500,
       }),
     });
 
@@ -55,10 +58,22 @@ Sé específico, accionable y enfocado en el nicho del usuario.`;
     }
 
     const data = await response.json();
-    const text = data.choices[0].message.content;
+    let text = data.choices[0].message.content.trim();
+
+    // Limpiar posibles markdown fences
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
+    let trends;
+    try {
+      trends = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Error parsing JSON:', parseError);
+      console.error('Raw text:', text);
+      throw new Error('El modelo no devolvió JSON válido');
+    }
 
     return Response.json({
-      trends: text,
+      trends: Array.isArray(trends) ? trends : [trends],
     });
   } catch (error) {
     console.error('Error en discover:', error);
