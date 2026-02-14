@@ -2,8 +2,8 @@ export async function POST(request) {
   try {
     const { publishedPosts, profile } = await request.json();
 
-    if (!process.env.GEMINI_DISCOVER_KEY) {
-      throw new Error('GEMINI_DISCOVER_KEY no está configurada');
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY no está configurada');
     }
 
     const postsList = publishedPosts.map((p, i) => `${i + 1}. [${p.pilar}] "${p.titulo}" - ${p.fecha}`).join('\n');
@@ -29,7 +29,7 @@ FORMATO:
 **Razón:** [por qué ahora]
 **Hook sugerido:** "[frase inicial]"`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_DISCOVER_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
