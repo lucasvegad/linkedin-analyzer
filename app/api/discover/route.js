@@ -2,8 +2,8 @@ export async function POST(request) {
   try {
     const { profile } = await request.json();
 
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY no está configurada');
+    if (!process.env.GEMINI_DISCOVER_KEY) {
+      throw new Error('GEMINI_DISCOVER_KEY no está configurada');
     }
 
     const prompt = `Eres un experto en tendencias de LinkedIn y content strategy.
@@ -34,7 +34,7 @@ FORMATO EXACTO:
 
 Sé específico, accionable y enfocado en el nicho del usuario.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_DISCOVER_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
