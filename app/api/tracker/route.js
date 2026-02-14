@@ -2,6 +2,10 @@ export async function POST(request) {
   try {
     const { publishedPosts, profile } = await request.json();
 
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY no está configurada');
+    }
+
     const postsList = publishedPosts.map((p, i) => `${i + 1}. [${p.pilar}] "${p.titulo}" - ${p.fecha}`).join('\n');
 
     const prompt = `Eres un estratega de contenido de LinkedIn.
@@ -25,28 +29,38 @@ FORMATO:
 **Razón:** [por qué ahora]
 **Hook sugerido:** "[frase inicial]"`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        messages: [{ role: 'user', content: prompt }],
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 800,
+        }
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`Error de API: ${response.status}`);
+      const errorData = await response.json();
+      console.error('Error Gemini:', errorData);
+      throw new Error(`Error Gemini: ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
 
+    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+      throw new Error('Respuesta inválida de Gemini');
+    }
+
+    const text = data.candidates[0].content.parts[0].text;
+
     return Response.json({
-      suggestion: data.content[0].text,
+      suggestion: text,
     });
   } catch (error) {
     console.error('Error en tracker:', error);
