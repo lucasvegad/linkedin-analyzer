@@ -446,11 +446,13 @@ export default function Home() {
                         </div>
 
                         {/* Lucas angle */}
-                        <div style={{ background: '#EBF5FF', borderRadius: 8, padding: 12, marginBottom: 12 }}>
-                          <p style={{ margin: 0, fontSize: 13, color: '#004182' }}>
-                            💡 <strong>Tu ángulo:</strong> {t.lucas_angle}
-                          </p>
-                        </div>
+                        {t.lucas_angle && (
+                          <div style={{ background: '#EBF5FF', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                            <p style={{ margin: 0, fontSize: 13, color: '#004182' }}>
+                              💡 <strong>Tu ángulo:</strong> {t.lucas_angle}
+                            </p>
+                          </div>
+                        )}
 
                         {/* Source + CTA */}
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
