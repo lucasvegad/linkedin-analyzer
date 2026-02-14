@@ -968,20 +968,44 @@ export default function Home() {
                           </div>
 
                           <button
-                            onClick={() => {
-                              setSelectedTrend({
+                            onClick={async () => {
+                              const trendData = {
                                 title: trend.nombre,
                                 description: trend.relevancia,
                                 suggested_pillar: trend.pilar_sugerido,
                                 lucas_angle: trend.angulo_personal,
                                 reader_takeaway: trend.puntos_clave.join('. '),
-                              });
-                              setSelectedHook({
+                              };
+                              const hookData = {
                                 text: trend.hook_sugerido,
                                 type: 'discovery',
-                              });
-                              setView('post');
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                              };
+                              
+                              setSelectedTrend(trendData);
+                              setSelectedHook(hookData);
+                              
+                              // Generar post directamente
+                              setLoading(true);
+                              setError(null);
+                              setLoadingMsg('Generando post completo con tu copywriting...');
+                              
+                              try {
+                                const res = await fetch('/api/post', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ hook: hookData, trend: trendData }),
+                                });
+                                const data = await res.json();
+                                if (data.error) throw new Error(data.error);
+                                setPostData(data);
+                                setView('post');
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              } catch (err) {
+                                setError(err.message);
+                              } finally {
+                                setLoading(false);
+                                setLoadingMsg('');
+                              }
                             }}
                             style={{
                               width: '100%',
