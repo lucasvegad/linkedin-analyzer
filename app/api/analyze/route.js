@@ -1,128 +1,85 @@
-import { NextResponse } from 'next/server';
-import { searchPerplexity } from '../../../lib/perplexity';
-import { generateWithGemini, askGemini } from '../../../lib/gemini';
-import { supabase } from '../../../lib/supabase';
-
 export async function POST(request) {
   try {
-    const { query } = await request.json();
-    if (!query) {
-      return NextResponse.json({ error: 'Falta la keyword' }, { status: 400 });
+    const { profile } = await request.json();
+
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY no está configurada');
     }
 
-    let perplexityData;
-    try {
-      perplexityData = await searchPerplexity(query);
-    } catch (pErr) {
-      console.error('Perplexity error:', pErr);
-      return NextResponse.json({ error: 'Error buscando tendencias: ' + pErr.message }, { status: 500 });
-    }
+    const prompt = `Eres un estratega de contenido de LinkedIn especializado en identificar tendencias.
 
-    const geminiPrompt = `Sos un estratega de contenido LinkedIn para alguien que esta EMPEZANDO a construir autoridad en LegalTech (24 conexiones, perfil nuevo). Tu trabajo es encontrar tendencias donde Lucas pueda APORTAR VALOR INMEDIATO al lector, no promocionar su proyecto.
+PERFIL DEL USUARIO:
+${profile}
 
-DATOS REALES DE INTERNET sobre "${query}":
-${perplexityData.content}
+TAREA:
+Identifica las 5 tendencias MÁS RELEVANTES en LinkedIn ahora mismo para este profesional.
 
-FUENTES:
-${(perplexityData.citations || []).map((url, i) => '[' + (i+1) + '] ' + url).join('\n')}
+Para cada tendencia, genera un JSON con esta estructura EXACTA:
 
-=== PERFIL DE LUCAS VEGA ===
-Cargo: Secretario del Digesto Juridico & Modernizacion, Montecarlo, Misiones (25,981 hab).
-Experiencia: Ex concejal (2021-2025). 189 proyectos legislativos. +10 anos legal.
-Proyecto: DigestIA chatbot IA legislativo — EN DESARROLLO 2026, no implementado.
-Base: Digesto certificado, 176 normas vigentes. Lucas NO digitalizo las ordenanzas.
-Stack: Claude API, Gemini, Supabase, Vercel.
-
-=== ESTRATEGIA: CURADOR DE VALOR (no promotor de proyecto) ===
-
-Lucas esta en ETAPA INICIAL de LinkedIn. Con 24 conexiones, necesita APORTAR VALOR antes de hablar de su proyecto. La estrategia es:
-
-1. CURAR TENDENCIAS (40%): Tomar datos reales de Perplexity y agregar analisis/opinion profesional. El lector se lleva algo util HOY.
-2. EDUCAR (25%): Tutoriales, herramientas, explicaciones practicas que el lector pueda usar inmediatamente.
-3. CONTEXTUALIZAR (15%): Casos reales de IA en gobierno/LegalTech de OTROS (Prometea, Boti, casos internacionales) con analisis critico.
-4. COMPARTIR PROCESO (15%): La experiencia personal de Lucas como aprendizaje — DigestIA aparece ACA como subtema, no como pilar propio.
-5. HUMANIZAR (5%): Reflexiones profesionales.
-
-REGLA CLAVE: Cada trend debe responder la pregunta "¿que se lleva el lector despues de leer esto?" Si la respuesta es "conocer el proyecto de Lucas", NO sirve. Si la respuesta es "una herramienta nueva / un dato clave / una perspectiva util", SI sirve.
-
-PROHIBIDO: trends que solo sirvan para hablar de DigestIA. DigestIA puede aparecer como ejemplo o contexto, NUNCA como tema central.
-
-=== PILARES ACTUALIZADOS ===
-"Tendencias_LegalTech" (40%): Noticias, datos, analisis de tendencias. El lector se informa.
-"Educativo" (25%): Tutoriales, herramientas, como-hacer. El lector aprende algo practico.
-"IA_gobierno" (15%): Casos reales de otros gobiernos/instituciones. El lector entiende el contexto.
-"Proceso_personal" (15%): Experiencia de Lucas incluyendo DigestIA. El lector conecta con la persona.
-"Personal" (5%): Reflexiones de carrera.
-
-Genera JSON con 5 trends, 3 unique_angles, 2 content_gaps:
 {
-  "trends": [
-    {
-      "title": "string titulo enfocado en VALOR para el lector",
-      "description": "string 2-3 oraciones basadas en datos reales",
-      "relevance_score": 8,
-      "saturation": "low",
-      "lucas_angle": "string como Lucas puede aportar VALOR UNICO al lector con este tema (no como puede hablar de DigestIA)",
-      "suggested_pillar": "Tendencias_LegalTech",
-      "suggested_format": "carrusel",
-      "source_url": "string URL real",
-      "reader_takeaway": "string que se lleva el lector despues de leer este post"
-    }
+  "nombre": "Título corto (max 50 caracteres)",
+  "relevancia": "Por qué es importante AHORA (1-2 líneas, max 150 caracteres)",
+  "hook_sugerido": "Frase de apertura pegajosa para el post (max 100 caracteres)",
+  "puntos_clave": [
+    "Punto concreto 1 (max 80 caracteres)",
+    "Punto concreto 2 (max 80 caracteres)",
+    "Punto concreto 3 (max 80 caracteres)"
   ],
-  "unique_angles": [
-    { "angle": "string", "why_only_lucas": "string basado en experiencia real", "potential_virality": "medium" }
-  ],
-  "content_gaps": [
-    { "topic": "string tema donde HAY DEMANDA y POCA OFERTA en espanol", "demand_signal": "string", "suggested_approach": "string enfocado en valor educativo" }
-  ]
+  "pilar_sugerido": "Nombre del pilar de contenido (ej: LegalTech, IA_gobierno, Educativo)",
+  "angulo_personal": "Cómo este profesional puede aportar valor único en esta tendencia (max 100 caracteres)"
 }
 
-DISTRIBUCION OBLIGATORIA de los 5 trends:
-- 2 deben ser "Tendencias_LegalTech" (curar datos reales)
-- 1 debe ser "Educativo" (tutorial o herramienta practica)
-- 1 debe ser "IA_gobierno" (caso real de otro gobierno/institucion)
-- 1 debe ser "Proceso_personal" (experiencia de Lucas como aprendizaje)
+IMPORTANTE:
+- Sé ESPECÍFICO al nicho del usuario
+- Los hooks deben ser emocionales o sorprendentes
+- Los puntos clave deben ser accionables
+- El ángulo personal debe conectar con la experiencia del usuario
 
-saturation: "low"|"medium"|"high"
-suggested_format: "carrusel"|"texto_imagen"|"video"|"encuesta"|"solo_texto"
-potential_virality: "low"|"medium"|"high"
-Solo JSON valido.`;
+Devuelve un array JSON con las 5 tendencias. SOLO el JSON, sin texto adicional.`;
 
-    let geminiResult;
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 2500,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error Groq:', errorData);
+      throw new Error(`Error Groq: ${JSON.stringify(errorData)}`);
+    }
+
+    const data = await response.json();
+    let text = data.choices[0].message.content.trim();
+
+    // Limpiar posibles markdown fences
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+
+    let trends;
     try {
-      geminiResult = await generateWithGemini(geminiPrompt);
-    } catch (gErr) {
-      console.error('Gemini error:', gErr);
-      return NextResponse.json({ error: 'Error en analisis Gemini: ' + gErr.message }, { status: 500 });
+      trends = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Error parsing JSON:', parseError);
+      console.error('Raw text:', text);
+      throw new Error('El modelo no devolvió JSON válido');
     }
 
-    if (geminiResult._parseError) {
-      return NextResponse.json({ error: 'Gemini no devolvio JSON valido. Intenta de nuevo.' }, { status: 500 });
-    }
-
-    const analysis = {
-      trends: geminiResult.trends || [],
-      unique_angles: geminiResult.unique_angles || [],
-      content_gaps: geminiResult.content_gaps || [],
-      sources: perplexityData.citations || [],
-      search_results: perplexityData.search_results || [],
-    };
-
-    try {
-      await supabase.from('analyses').insert({
-        query,
-        perplexity_data: perplexityData,
-        gemini_analysis: geminiResult,
-        sources: perplexityData.citations,
-      });
-    } catch (dbErr) {
-      console.error('Supabase save error:', dbErr);
-    }
-
-    return NextResponse.json(analysis);
-
-  } catch (err) {
-    console.error('Analyze error:', err);
-    return NextResponse.json({ error: err.message || 'Error desconocido' }, { status: 500 });
+    return Response.json({
+      trends: Array.isArray(trends) ? trends : [trends],
+    });
+  } catch (error) {
+    console.error('Error en discover:', error);
+    return Response.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 }
