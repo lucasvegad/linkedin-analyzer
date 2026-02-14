@@ -122,35 +122,56 @@ export default function Home() {
     }
   };
 
-  // Feature 1: Auto-Discovery
-  const handleDiscover = async () => {
-    if (!analysis && !keyword.trim()) {
-      setError('Primero analiza una keyword para tener contexto de tu perfil');
-      return;
+  // ========================================
+// FUNCIÓN: handleDiscover actualizada
+// Ubicación: dentro del componente Home, junto con las otras funciones handle
+// ========================================
+
+const handleDiscover = async () => {
+  // Usar el análisis existente o el keyword como perfil
+  const profileData = analysis 
+    ? `Nicho: ${keyword}\nTendencias actuales: ${analysis.trends.map(t => t.title).join(', ')}\nContexto: ${analysis.summary}`
+    : keyword;
+
+  if (!profileData.trim()) {
+    setError("Primero analiza una keyword o ingresa tu nicho profesional");
+    return;
+  }
+
+  setIsDiscovering(true);
+  setError(null);
+  setLoadingMsg('Descubriendo tendencias relevantes...');
+
+  try {
+    const response = await fetch("/api/discover", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        profile: profileData,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Error al descubrir tendencias");
     }
 
-    setIsDiscovering(true);
-    setError(null);
-
-    try {
-      const response = await fetch('/api/discover', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          profile: analysis?.profile_summary || `Experto en: ${keyword}`,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Error al descubrir tendencias');
-
-      const data = await response.json();
-      setTrends(data.trends);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsDiscovering(false);
+    const data = await response.json();
+    
+    if (!data.trends || !Array.isArray(data.trends)) {
+      throw new Error("Formato de respuesta inválido");
     }
-  };
+
+    setTrends(data.trends);
+    setView('discover'); // Cambiar a la vista de tendencias
+  } catch (err) {
+    console.error('Error en discover:', err);
+    setError(err.message);
+  } finally {
+    setIsDiscovering(false);
+    setLoadingMsg('');
+  }
+};
 
   // Feature 2: Content Tracker
   const handleAddPost = () => {
