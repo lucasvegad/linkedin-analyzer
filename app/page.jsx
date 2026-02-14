@@ -361,24 +361,6 @@ export default function Home() {
             )}
 
             {/* LOADING */}
-            {loading && (
-              <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: 64, textAlign: 'center' }}>
-                <div
-                  style={{
-                    width: 48,
-                    height: 48,
-                    border: '4px solid #0A66C2',
-                    borderTopColor: 'transparent',
-                    borderRadius: '50%',
-                    margin: '0 auto 16px',
-                    animation: 'spin 1s linear infinite',
-                  }}
-                ></div>
-                <h3 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>{loadingMsg}</h3>
-                <p style={{ color: '#666', fontSize: 14, marginTop: 8 }}>Perplexity busca datos reales → Gemini los analiza para vos</p>
-              </div>
-            )}
-
             {/* EMPTY STATE */}
             {!loading && !analysis && !error && view === 'analyze' && (
               <div style={{ textAlign: 'center', padding: '80px 0', opacity: 0.4 }}>
@@ -1294,6 +1276,124 @@ export default function Home() {
           </div>
         </div>
       </main>
+
+      {/* LOADING OVERLAY GLOBAL */}
+      {loading && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(11, 25, 49, 0.95)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            animation: 'fadeIn 0.2s ease-in',
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: 16,
+              padding: '48px 64px',
+              textAlign: 'center',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              maxWidth: 500,
+            }}
+          >
+            {/* Spinner animado */}
+            <div
+              style={{
+                width: 64,
+                height: 64,
+                border: '6px solid #E0E0E0',
+                borderTopColor: '#0A66C2',
+                borderRadius: '50%',
+                margin: '0 auto 24px',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            ></div>
+
+            {/* Mensaje principal */}
+            <h3
+              style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: '#0B1931',
+                margin: '0 0 12px',
+              }}
+            >
+              {loadingMsg || 'Procesando...'}
+            </h3>
+
+            {/* Mensaje secundario según la acción */}
+            <p style={{ color: '#666', fontSize: 14, margin: 0, lineHeight: 1.6 }}>
+              {loadingMsg.includes('Perplexity') && 'Buscando datos reales en internet...'}
+              {loadingMsg.includes('Gemini') && 'Analizando tendencias con IA...'}
+              {loadingMsg.includes('hook') && 'Generando hooks creativos...'}
+              {loadingMsg.includes('post') && (
+                <>
+                  Redactando post con tu copywriting calibrado
+                  <br />
+                  <span style={{ fontSize: 12, color: '#999', marginTop: 8, display: 'block' }}>
+                    Esto puede tomar 15-30 segundos
+                  </span>
+                </>
+              )}
+              {loadingMsg.includes('tendencias') && 'Descubriendo las mejores oportunidades de contenido...'}
+            </p>
+
+            {/* Barra de progreso animada (opcional) */}
+            <div
+              style={{
+                marginTop: 24,
+                height: 4,
+                background: '#E0E0E0',
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #0A66C2, #00C17A)',
+                  animation: 'progress 2s ease-in-out infinite',
+                  width: '100%',
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ANIMACIONES CSS */}
+      <style jsx>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes progress {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+      `}</style>
 
       {/* FOOTER */}
       <footer style={{ textAlign: 'center', padding: '24px 0', borderTop: '1px solid #E0E0E0', marginTop: 40, background: 'white' }}>
