@@ -2,8 +2,8 @@ export async function POST(request) {
   try {
     const { profile } = await request.json();
 
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY no está configurada');
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY no está configurada');
     }
 
     const prompt = `Eres un experto en tendencias de LinkedIn y content strategy.
@@ -34,35 +34,28 @@ FORMATO EXACTO:
 
 Sé específico, accionable y enfocado en el nicho del usuario.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2000,
-        }
+        model: 'llama3-70b-8192',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 2000,
       }),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Error Gemini:', errorData);
-      throw new Error(`Error Gemini: ${JSON.stringify(errorData)}`);
+      console.error('Error Groq:', errorData);
+      throw new Error(`Error Groq: ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json();
-    
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      throw new Error('Respuesta inválida de Gemini');
-    }
-
-    const text = data.candidates[0].content.parts[0].text;
+    const text = data.choices[0].message.content;
 
     return Response.json({
       trends: text,
