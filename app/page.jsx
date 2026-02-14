@@ -651,10 +651,19 @@ export default function Home() {
             {!loading && postData && view === 'post' && (
               <div>
                 <button
-                  onClick={() => setView('hooks')}
+                  onClick={() => {
+                    // Si hay hooksData, volver a hooks. Si no, volver a discover o analyze
+                    if (hooksData) {
+                      setView('hooks');
+                    } else if (selectedHook?.type === 'discovery') {
+                      setView('discover');
+                    } else {
+                      setView('analyze');
+                    }
+                  }}
                   style={{ background: 'none', border: 'none', color: '#0A66C2', fontWeight: 600, cursor: 'pointer', marginBottom: 16, fontSize: 14 }}
                 >
-                  ← Volver a Hooks
+                  ← Volver
                 </button>
                 <h2 style={{ fontSize: 18, fontWeight: 700, marginBottom: 20 }}>✍️ Post Completo - Preview LinkedIn</h2>
 
