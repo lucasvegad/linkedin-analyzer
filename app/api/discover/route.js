@@ -34,7 +34,7 @@ FORMATO EXACTO:
 
 Sé específico, accionable y enfocado en el nicho del usuario.`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_DISCOVER_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${process.env.GEMINI_DISCOVER_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
