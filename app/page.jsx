@@ -122,56 +122,52 @@ export default function Home() {
     }
   };
 
-  // ========================================
-// FUNCIÓN: handleDiscover actualizada
-// Ubicación: dentro del componente Home, junto con las otras funciones handle
-// ========================================
+  // Feature 1: Auto-Discovery
+  const handleDiscover = async () => {
+    // Usar el análisis existente o el keyword como perfil
+    const profileData = analysis 
+      ? `Nicho: ${keyword}\nTendencias actuales: ${analysis.trends.map(t => t.title).join(', ')}\nContexto: ${analysis.summary}`
+      : keyword;
 
-const handleDiscover = async () => {
-  // Usar el análisis existente o el keyword como perfil
-  const profileData = analysis 
-    ? `Nicho: ${keyword}\nTendencias actuales: ${analysis.trends.map(t => t.title).join(', ')}\nContexto: ${analysis.summary}`
-    : keyword;
-
-  if (!profileData.trim()) {
-    setError("Primero analiza una keyword o ingresa tu nicho profesional");
-    return;
-  }
-
-  setIsDiscovering(true);
-  setError(null);
-  setLoadingMsg('Descubriendo tendencias relevantes...');
-
-  try {
-    const response = await fetch("/api/discover", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        profile: profileData,
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Error al descubrir tendencias");
+    if (!profileData.trim()) {
+      setError("Primero analiza una keyword o ingresa tu nicho profesional");
+      return;
     }
 
-    const data = await response.json();
-    
-    if (!data.trends || !Array.isArray(data.trends)) {
-      throw new Error("Formato de respuesta inválido");
-    }
+    setIsDiscovering(true);
+    setError(null);
+    setLoadingMsg('Descubriendo tendencias relevantes...');
 
-    setTrends(data.trends);
-    setView('discover'); // Cambiar a la vista de tendencias
-  } catch (err) {
-    console.error('Error en discover:', err);
-    setError(err.message);
-  } finally {
-    setIsDiscovering(false);
-    setLoadingMsg('');
-  }
-};
+    try {
+      const response = await fetch("/api/discover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile: profileData,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al descubrir tendencias");
+      }
+
+      const data = await response.json();
+      
+      if (!data.trends || !Array.isArray(data.trends)) {
+        throw new Error("Formato de respuesta inválido");
+      }
+
+      setTrends(data.trends);
+      setView('discover'); // Cambiar a la vista de tendencias
+    } catch (err) {
+      console.error('Error en discover:', err);
+      setError(err.message);
+    } finally {
+      setIsDiscovering(false);
+      setLoadingMsg('');
+    }
+  };
 
   // Feature 2: Content Tracker
   const handleAddPost = () => {
@@ -899,9 +895,132 @@ const handleDiscover = async () => {
                 </div>
 
                 {trends && (
-                  <div style={{ background: 'white', border: '1px solid #E0E0E0', borderRadius: 12, padding: 20 }}>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#B24020' }}>📈 Tendencias Detectadas</h3>
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.6, color: '#333' }}>{trends}</div>
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ background: 'linear-gradient(to right, #FFF7ED, #FEE2E2)', padding: 16, borderRadius: 12, border: '1px solid #FED7AA', marginBottom: 16 }}>
+                      <h3 style={{ fontWeight: 600, color: '#9A3412', marginBottom: 8, fontSize: 15, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>🔥</span>
+                        Tendencias Detectadas para tu Nicho
+                      </h3>
+                      <p style={{ fontSize: 13, color: '#666', margin: 0 }}>
+                        Click en "Usar esta tendencia" para auto-completar el generador de posts
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      {Array.isArray(trends) && trends.map((trend, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: 'white',
+                            padding: 20,
+                            borderRadius: 12,
+                            border: '2px solid #E5E7EB',
+                            transition: 'all 0.3s',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                            <h4 style={{ fontWeight: 700, color: '#111827', fontSize: 17, flex: 1, margin: 0 }}>
+                              {trend.nombre}
+                            </h4>
+                            <span style={{ background: '#FFF7ED', color: '#C2410C', fontSize: 11, fontWeight: 500, padding: '4px 10px', borderRadius: 6 }}>
+                              {trend.pilar_sugerido}
+                            </span>
+                          </div>
+
+                          <div style={{ background: '#EFF6FF', padding: 12, borderRadius: 8, marginBottom: 12 }}>
+                            <p style={{ fontSize: 13, color: '#374151', margin: 0 }}>
+                              <strong style={{ color: '#1E40AF' }}>Por qué ahora:</strong> {trend.relevancia}
+                            </p>
+                          </div>
+
+                          <div style={{ background: 'linear-gradient(to right, #FAF5FF, #FCE7F3)', padding: 12, borderRadius: 8, border: '1px solid #E9D5FF', marginBottom: 12 }}>
+                            <p style={{ fontSize: 12, fontWeight: 500, color: '#7C3AED', marginBottom: 4 }}>
+                              💡 Hook sugerido:
+                            </p>
+                            <p style={{ fontSize: 13, color: '#374151', fontStyle: 'italic', margin: 0 }}>
+                              "{trend.hook_sugerido}"
+                            </p>
+                          </div>
+
+                          <div style={{ marginBottom: 16 }}>
+                            <p style={{ fontSize: 11, fontWeight: 600, color: '#6B7280', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                              Puntos clave para desarrollar:
+                            </p>
+                            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+                              {trend.puntos_clave.map((punto, i) => (
+                                <li key={i} style={{ fontSize: 13, color: '#374151', display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4 }}>
+                                  <span style={{ color: '#F97316', fontWeight: 700 }}>→</span>
+                                  <span>{punto}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div style={{ background: '#F0FDF4', padding: 12, borderRadius: 8, border: '1px solid #BBF7D0', marginBottom: 16 }}>
+                            <p style={{ fontSize: 11, fontWeight: 600, color: '#15803D', marginBottom: 4 }}>
+                              🎯 Tu ángulo único:
+                            </p>
+                            <p style={{ fontSize: 13, color: '#374151', margin: 0 }}>
+                              {trend.angulo_personal}
+                            </p>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setSelectedTrend({
+                                title: trend.nombre,
+                                description: trend.relevancia,
+                                suggested_pillar: trend.pilar_sugerido,
+                                lucas_angle: trend.angulo_personal,
+                                reader_takeaway: trend.puntos_clave.join('. '),
+                              });
+                              setSelectedHook({
+                                text: trend.hook_sugerido,
+                                type: 'discovery',
+                              });
+                              setView('post');
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            style={{
+                              width: '100%',
+                              background: 'linear-gradient(to right, #F97316, #DC2626)',
+                              color: 'white',
+                              fontWeight: 600,
+                              padding: '12px 16px',
+                              borderRadius: 8,
+                              border: 'none',
+                              cursor: 'pointer',
+                              fontSize: 14,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: 8,
+                            }}
+                          >
+                            <span>🚀</span>
+                            Usar esta tendencia para generar post
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setView('analyze')}
+                      style={{
+                        width: '100%',
+                        marginTop: 16,
+                        background: '#F3F4F6',
+                        color: '#374151',
+                        fontWeight: 500,
+                        padding: '10px 16px',
+                        borderRadius: 8,
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: 14,
+                      }}
+                    >
+                      ← Volver al análisis
+                    </button>
                   </div>
                 )}
               </div>
