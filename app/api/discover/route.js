@@ -1,9 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
 export async function POST(request) {
   try {
     const { profile } = await request.json();
@@ -36,17 +30,31 @@ FORMATO EXACTO:
 
 Sé específico, accionable y enfocado en el nicho del usuario.`;
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 2000,
-      messages: [{ role: "user", content: prompt }],
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
     });
 
+    if (!response.ok) {
+      throw new Error(`Error de API: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
     return Response.json({
-      trends: message.content[0].text,
+      trends: data.content[0].text,
     });
   } catch (error) {
-    console.error("Error en discover:", error);
+    console.error('Error en discover:', error);
     return Response.json(
       { error: error.message },
       { status: 500 }
